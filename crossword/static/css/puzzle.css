@@ -1,0 +1,191 @@
+table {
+    table-layout: fixed;
+}
+
+td {
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Make the grid cells touch */
+.crossword-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.crossword-table td {
+    position: relative;
+    width: 40px;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* No longer have black squares, clear illusion */
+.black-square {
+    background-color: transparent;
+    width: 40px;
+    height: 40px;
+}
+
+.white-square {
+    background-color: white;
+    border: 1px solid #000; 
+    width: 40px;
+    height: 40px;
+}
+
+input.crossword-input {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: 20px;
+    background-color: transparent;
+    text-transform: uppercase;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+}
+
+input.crossword-input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto; 
+    height: auto;
+    margin: 0px 10px 20px 100px;
+    overflow: visible;
+}
+
+/* clue numbers */
+.corner-number {
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #000;
+    line-height: 1;
+    text-align: left;
+    width: 100%;
+    user-select: none;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.wordList ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.crossword-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 3px;
+    margin-top: 50px;
+}
+ 
+.wordList {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    gap: 10px;                /* space between HORIZONTAL and VERTICAL */  
+    padding: 0px;
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: 300px;
+    margin: 30px 5px 10px auto;
+}
+
+.wordList .clues-horizontal,
+.wordList .clues-vertical {
+    flex: 1;
+    min-width: 250px;
+}
+
+.wordList h3 {
+    margin: 0 0 5px 0;
+    text-align: center;
+}
+
+.wordList li {
+    margin-bottom: 4px;
+    font-size: 15px;
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+    font-family: Arial, sans-serif;
+    color: black;
+}
+  
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* need to fix this*/
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;     
+    transition: 0.25s;
+    border-radius: 999px;       
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    top: 3px;
+    background-color: #f5f7fa;
+    transition: 0.25s;
+    border-radius: 50%;
+}
+  
+  /* ON state */
+.switch input:checked + .slider {
+    background-color: #475058;   /* bright blue like screenshot */
+}
+  
+.switch input:checked + .slider::before {
+    transform: translateX(24px); /* slide knob to right */
+}
+
+  /* loading icon */
+.spinner {
+    border: 6px solid #f3f3f3;      /* Light gray background */
+    border-top: 6px solid #3498db;  /* Blue spinning color */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 100px auto 10px auto;
+}
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

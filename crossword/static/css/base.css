@@ -1,0 +1,33 @@
+body {
+    color:black;
+    background-color: cadetblue;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    background-color: white;
+    color:cadetblue;
+    padding: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.enterCategory {
+    text-align: center;
+}
+
+.enterCategory input {
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.enterCategory button {
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.enterCategory label {
+    color: white;
+    font-size: 25px;
+}

@@ -1,0 +1,15 @@
+name: ai_crossword_env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12
+  - django
+  - djangorestframework
+  - pip:
+      - google-generativeai
+      - google-genai
+      - google-ai-generativelanguage
+      - python-dotenv
+      - requests
+      - tqdm
