@@ -12,11 +12,12 @@
     <h1>Play It Your Way</h1>
 
     <div class="enterCategory">
+        <label for="user_input">AI Crossword Generator</label>
         <form id="crosswordForm" method="POST" action="{% url 'generate_crossword' %}">
             {% csrf_token %}
-            <label for="user_input">Crossword Category:</label>
-            <input type="text" id="user_input" name="user_input" placeholder="Category" required>
-            <button type="submit">Submit</button>
+            {% comment %} <label for="user_input">Category</label> {% endcomment %}
+            <input type="text" id="user_input" name="user_input" placeholder="Dogs, Musicians, Countries, etc." required>
+            <button type="submit">Enter</button>
         </form>
     </div>
 

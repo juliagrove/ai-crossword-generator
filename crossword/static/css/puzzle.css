@@ -12,6 +12,7 @@ td {
 .crossword-table {
     border-collapse: collapse;
     border-spacing: 0;
+    table-layout: fixed;
 }
 
 .crossword-table td {
@@ -48,6 +49,7 @@ input.crossword-input {
     box-sizing: border-box;
     border: none;
     outline: none;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 input.crossword-input:focus {
@@ -61,7 +63,7 @@ input.crossword-input:focus {
     align-items: center;
     width: auto; 
     height: auto;
-    margin: 0px 10px 20px 100px;
+    margin: 0px;
     overflow: visible;
 }
 
@@ -81,17 +83,12 @@ input.crossword-input:focus {
     z-index: 2;
 }
 
-.wordList ul {
-    list-style-type: none;
-    padding-left: 0;
-    margin: 0;
-}
-
 .crossword-container {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: 3px;
+    justify-content: start;
+    gap: 40px;
     margin-top: 50px;
 }
  
@@ -100,10 +97,18 @@ input.crossword-input:focus {
     justify-content: center;
     align-items: flex-start; 
     gap: 10px;                /* space between HORIZONTAL and VERTICAL */  
-    padding: 0px;
-    font-family: Arial, Helvetica, sans-serif;
-    max-width: 300px;
-    margin: 30px 5px 10px auto;
+    padding: 20px;
+    max-width: 250px;
+    margin-right: 100px;
+    background-color: white;
+    color: cadetblue;
+    border-radius: 20px;
+}
+
+.wordList ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
 }
 
 .wordList .clues-horizontal,
@@ -126,16 +131,19 @@ input.crossword-input:focus {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 0;
-    font-family: Arial, sans-serif;
-    color: black;
+    color: white;
+    border-radius: 20px;
+    border-color: white;
+    background-color: transparent;
+    margin-left: 50px;
 }
   
 .switch {
     position: relative;
     display: inline-block;
-    width: 52px;
-    height: 28px;
+    text-align: center;
+    width: 150px;
+    height: 35px;
 }
 .switch input {
     opacity: 0;
@@ -150,10 +158,15 @@ input.crossword-input:focus {
     inset: 0;
     background-color: #ccc;     
     transition: 0.25s;
-    border-radius: 999px;       
+    display: flex;    
+    align-items: center;
+    justify-content: center;
+    border-radius: 100px;
+    border: 2px solid white;
+    background-color: transparent;
 }
 
-.slider::before {
+/* .slider::before {
     content: "";
     position: absolute;
     height: 22px;
@@ -164,20 +177,21 @@ input.crossword-input:focus {
     transition: 0.25s;
     border-radius: 50%;
 }
-  
+   */
   /* ON state */
 .switch input:checked + .slider {
-    background-color: #475058;   /* bright blue like screenshot */
+    background-color: white;
+    color: cadetblue;
 }
   
 .switch input:checked + .slider::before {
     transform: translateX(24px); /* slide knob to right */
 }
 
-  /* loading icon */
+/* loading icon */
 .spinner {
     border: 6px solid #f3f3f3;      /* Light gray background */
-    border-top: 6px solid #3498db;  /* Blue spinning color */
+    border-top: 6px solid #42494d;  /* Blue spinning color */
     border-radius: 50%;
     width: 50px;
     height: 50px;
