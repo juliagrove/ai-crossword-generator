@@ -1,16 +1,17 @@
 # 🧩 AI Crossword Generator
-![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
-![Django](https://img.shields.io/badge/Django-5.0-darkgreen?logo=django&logoColor=white)
-![Gemini AI](https://img.shields.io/badge/Gemini%20API-Google%20AI-orange?logo=google&logoColor=white)
+## **Project:** an AI-powered crossword generator that builds an interactive crossword puzzle from ***any*** category
 
-## **Project:** an AI-powered crossword generator that builds a playable crossword puzzle with the users category
+---
 
-## 🎥 Demo
+## 🎥 Demo:
 
 ![AI Crossword Demo](demo/demo.gif)
 
 ---
 
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.0-darkgreen?logo=django&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/Gemini%20API-Google%20AI-orange?logo=google&logoColor=white)
 ## This project demonstrates:
 - Custom constraint based algorithms  
 - Prompt engineering  
