@@ -13,7 +13,7 @@ def generate_crossword(request):
     down_clues = []
     
     try:
-        crossword_grid, across_clues, down_clues = crossword(category, num_words=30)
+        crossword_grid, across_clues, down_clues = crossword(category, num_words=50)
     
     except Exception as e:
         error_message = str(e)

@@ -12,7 +12,7 @@ geminiModel=genai.GenerativeModel("gemini-2.0-flash")
 
 
 # Prompt gemini with users category and parse JSON output
-def get_crossword_content(category, num_words=30):
+def get_crossword_content(category, num_words):
     prompt = build_prompt(category, num_words)
     try:    
         print('Calling Gemini API')

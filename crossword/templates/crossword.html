@@ -9,16 +9,16 @@
     {% else %}
         <!-- List of Clues -->
         <div class="wordList">
-            <div class="horizontal-clues">
-                <h3>HORIZONTAL</h3>
+            <div class="across-clues">
+                <h3>ACROSS</h3>
                 <ul>
                     {% for clue in across_clues %}
                         <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
                     {% endfor %}
                 </ul>
             </div>
-            <div class="vertical-clues">
-                <h3>VERTICAL</h3>
+            <div class="down-clues">
+                <h3>DOWN</h3>
                 <ul>
                     {% for clue in down_clues %}
                         <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>

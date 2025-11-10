@@ -135,7 +135,7 @@
                     styleInput(input);
                 });
 
-                // Auto move through cells on delete (need to implement for vertical words)
+                // Auto move through cells on delete (need to implement for down words)
                 input.addEventListener("keydown", (e) => {
                     if (e.key === "Backspace" && input.value === "" && index > 0) {
                         e.preventDefault();
