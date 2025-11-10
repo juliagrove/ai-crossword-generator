@@ -46,5 +46,5 @@
 
 ## Tech Stack
 - **Backend:** Django (Python)
-- **AI:** Google Gemeni LLM
+- **AI:** Google Gemini LLM
 - **Frontend:** HTML/CSS

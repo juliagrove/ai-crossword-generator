@@ -6,16 +6,16 @@ import random
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMENI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 geminiModel=genai.GenerativeModel("gemini-2.0-flash")  
 
 
-# Prompt gemeni with users category and parse JSON output
+# Prompt gemini with users category and parse JSON output
 # TODO: implement better error checking
 def get_crossword_content(category, num_words):
     prompt = build_prompt(category, num_words)
     try:    
-        print('Calling Gemeni API')
+        print('Calling Gemini API')
         response=geminiModel.generate_content(prompt)
         output = response.text
     except Exception as e:
