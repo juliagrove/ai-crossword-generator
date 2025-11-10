@@ -3,6 +3,7 @@ import google.generativeai as genai
 import json
 import os
 import random
+import re
 
 load_dotenv()
 
@@ -11,24 +12,27 @@ geminiModel=genai.GenerativeModel("gemini-2.0-flash")
 
 
 # Prompt gemini with users category and parse JSON output
-# TODO: implement better error checking
-def get_crossword_content(category, num_words):
+def get_crossword_content(category, num_words=30):
     prompt = build_prompt(category, num_words)
     try:    
         print('Calling Gemini API')
         response=geminiModel.generate_content(prompt)
-        output = response.text
+        output = response.text.strip()
+        # finds { ... } in the response
+        json_object = re.search(r"\{[\s\S]*\}", output)
+        if not json_object:
+            raise ValueError("No JSON output from the LLM.")
+
+        return json.loads(json_object.group(0))
+        
     except Exception as e:
-        return e
+        raise RuntimeError(f"Gemini API error: {e}")
+    
 
-    return json.loads(output.strip()[7:-4])
-
-
-# TODO: strengthen prompt
 def build_prompt(category, num_words):
     return f"""
         You are a crossword generator. Give me {num_words} and short clues that follow the category {category}. 
-        Generate the output in json format like this: {{ word1: clue1, word2, clue2 }} for example: {{ "cat": "Meow noise's , "helmet": "protection on a bike"}}
+        Return a valid JSON in the format {{ word1: clue1, word2: clue2 }} for example: {{ "cat": "Meow noise's , "helmet": "head protection on a bike"}}
     """
 
 # Checks if words can be placed at given cell
