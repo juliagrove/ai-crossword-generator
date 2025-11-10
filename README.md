@@ -5,6 +5,10 @@
 
 ## **Project:** an AI-powered crossword generator that builds a playable crossword puzzle with the users category
 
+## 🎥 Demo
+
+![AI Crossword Demo](demo/demo.gif)
+
 ---
 
 ## This project demonstrates:
