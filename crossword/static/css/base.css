@@ -11,7 +11,6 @@ h1 {
     color:cadetblue;
     padding: 20px;
     margin: 0px;
-    margin-bottom: 20px;
 }
 
 .enterCategory {
@@ -44,4 +43,33 @@ h1 {
 .enterCategory label {
     color: white;
     font-size: 25px;
+}
+
+.navbar {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 10px;
+}
+
+/* To center title */
+.nav-spacer {
+    width: 250px; /* must match width of nav-right */
+}
+
+.nav-right {
+    align-items: right;
+    width: 250px;
+}
+
+.navbar a {
+    color: cadetblue;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+.navbar .logo {
+    font-weight: bold;
 }

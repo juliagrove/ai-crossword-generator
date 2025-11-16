@@ -1,0 +1,63 @@
+<div class="crossword-container">
+    {% if error_message %}
+        <div class="alert">
+            Failed to Generate Crossword
+            <div class= "dev-error-message">
+                Dev: {{ error_message }}
+            </div>
+        </div>
+    {% else %}
+        <!-- List of Clues -->
+        <div class="wordList">
+            <div class="across-clues">
+                <h3>ACROSS</h3>
+                <ul>
+                    {% for clue in across_clues %}
+                        <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="down-clues">
+                <h3>DOWN</h3>
+                <ul>
+                    {% for clue in down_clues %}
+                        <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <!-- Crossword Grid -->
+        <div class="grid">
+            <table class="crossword-table">
+            {% for row in crossword_grid %}
+                <tr>
+                {% for cell in row %}
+                    <td class="{% if cell == '-' %}black-square{% else %}white-square{% endif %}">
+                    {% if cell != '-' %}
+                        <div class="cell">
+                        {% if cell|length > 1 %}
+                            <span class="corner-number">{{ cell|slice:':-1' }}</span>
+                        {% endif %}
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="crossword-input"
+                            data-answer="{{ cell|slice:'-1:' }}" 
+                        />
+                        </div>
+                    {% endif %}
+                    </td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+        <!-- Toggle for showing correct/incorrect cells  -->
+        <label class="toggle-container">
+            <label class="switch">
+            <input type="checkbox" id="errorToggle" checked>
+            <span class="slider">AUTO CHECK</span>
+            </label>
+        </label>
+    {% endif %}  
+</div>

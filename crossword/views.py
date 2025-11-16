@@ -1,6 +1,6 @@
 # crossword/views.py
 from django.shortcuts import render
-from .utils import crossword, get_crossword_content
+from .utils import crossword
 
 def home(request):
     return render(request, "home.html")
@@ -13,18 +13,21 @@ def generate_crossword(request):
     down_clues = []
     
     try:
-        crossword_grid, across_clues, down_clues = crossword(category, num_words=50)
+        crossword_grid, across_clues, down_clues = crossword(category, num_words=20)
     
     except Exception as e:
         error_message = str(e)
+    
+    context = {
+        'crossword_grid': crossword_grid,
+        'across_clues': across_clues,
+        'down_clues': down_clues,
+        'error_message': error_message
+    }
+    
+    # if request came from fetch on the home page, return ONLY the partial
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return render(request, "crossword_partial.html", context)
 
-    return render(
-        request, 
-        'crossword.html', 
-        {
-            'crossword_grid': crossword_grid,
-            'across_clues': across_clues,
-            'down_clues': down_clues,
-            'error_message': error_message
-        }
-    )
+    # if user hits the url in the browser return full page
+    return render(request, 'crossword.html', context)
