@@ -1,6 +1,7 @@
 # crossword/views.py
 from django.shortcuts import render
-from .utils import crossword
+
+from .services.crossword_service import crossword
 
 
 def home(request):
