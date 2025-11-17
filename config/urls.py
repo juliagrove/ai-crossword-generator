@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from crossword.views import generate_crossword
+# from crossword.views import generate_crossword
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('crossword/', include('crossword.urls')),  
-    path('generate-crossword/', generate_crossword, name=''),
+    # path('generate-crossword/', generate_crossword, name=''),
 ]

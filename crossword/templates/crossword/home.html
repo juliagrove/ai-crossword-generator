@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "crossword/base.html" %}
 
 {% block title %}Home | AI Crossword Generator{% endblock %}
 
 {% block content %}
     <div class="enterCategory">
         <label for="user_input">AI Crossword Generator</label>
-        <form id="crosswordForm" method="POST" action="{% url 'generate_crossword' %}">
+        <form id="crosswordForm" method="POST" action="{% url 'crossword:home' %}">
             {% csrf_token %}
             <input type="text" id="user_input" name="user_input"
                 placeholder="Dogs, Musicians, Countries, etc." required>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}AI Crossword Generator{% endblock %}</title>
 
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/puzzle.css' %}">
 
@@ -20,8 +20,8 @@
         <h1 class="nav-title">Play It Your Way</h1>
     
         <div class="nav-right">
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'home' %}">Saved Crosswords</a>
+            <a href="{% url 'crossword:home' %}">Home</a>
+            <a href="{% url 'crossword:home' %}">Saved Crosswords</a>
             {% comment %}
             next-step: add a login screen
                 {% if user.is_authenticated %}
@@ -39,6 +39,7 @@
     </main>
 
     {% block extra_scripts %}
+    {% comment %} <script src="{% static 'js/crossword.js' %}"></script> {% endcomment %}
     {% endblock %}
 </body>
 </html>
