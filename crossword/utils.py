@@ -1,22 +1,77 @@
-from dotenv import load_dotenv
 import google.generativeai as genai
 import json
-import os
 import random
 import re
+from django.conf import settings
 
-load_dotenv()
+gemini_model = genai.GenerativeModel(settings.GEMINI_MODEL_NAME)
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-geminiModel=genai.GenerativeModel("gemini-2.0-flash")  
 
+def crossword(category, num_words):
+    # returns dictionary of { words: clues }
+    content = _get_crossword_content(category, num_words)
+    
+    words = list(content.keys())
+    
+    grid_size = max(len(word) for word in words) + 20  # padding for intersections
+    mid_row = grid_size // 2
+    start_col = grid_size // 2
+    
+    # initialize grid
+    crossword = [['-' for _ in range(grid_size)] for _ in range(grid_size)]
+    
+    # find the longest word to place first
+    first_word = max(words, key=len)
+    words.remove(first_word)
+    
+    # place the first word
+    for i, letter in enumerate(first_word):
+        crossword[mid_row][start_col + i] = letter
+    
+    crosswordFilled, words_kept = _create_crossword(words, crossword)
+
+    # adds first word to start of the word dict
+    words_kept = {
+        first_word: {
+            "number": 1,
+            "direction": "h",
+            "first_letter": (mid_row, start_col)
+        },
+        **words_kept
+    }
+    
+    # add clues to words dict
+    for word in content:
+        if word in words_kept:
+            words_kept[word]['clue'] = content[word]
+    
+    across_clues = []
+    down_clues = []
+    
+    for word, info in words_kept.items():
+        entry = {
+            "word": word,
+            "number": info["number"],
+            "clue": info["clue"]
+        }
+        if info["direction"] == "h":
+            across_clues.append(entry)
+        elif info["direction"] == "v":
+            down_clues.append(entry)
+    
+    first_letters = {info["number"]: info["first_letter"] for info in words_kept.values()}
+    
+    numbered_grid = _add_numbers_to_grid(crosswordFilled, first_letters)
+    final_grid = _simplify_grid(numbered_grid)
+
+    return final_grid, across_clues, down_clues
 
 # Prompt gemini with users category and parse JSON output
-def get_crossword_content(category, num_words):
-    prompt = build_prompt(category, num_words)
+def _get_crossword_content(category, num_words):
+    prompt = _build_prompt(category, num_words)
     try:    
-        print('Calling Gemini API')
-        response=geminiModel.generate_content(prompt)
+        print("Calling Gemini API")
+        response=gemini_model.generate_content(prompt)
         output = response.text.strip()
         # finds { ... } in the response
         json_object = re.search(r"\{[\s\S]*\}", output)
@@ -29,14 +84,14 @@ def get_crossword_content(category, num_words):
         raise RuntimeError(f"Gemini API error: {e}")
     
 
-def build_prompt(category, num_words):
+def _build_prompt(category, num_words):
     return f"""
         You are a crossword generator. Give me {num_words} and short clues that follow the category {category}. 
         Return a valid JSON in the format {{ word1: clue1, word2: clue2 }} for example: {{ "cat": "Meow noise's , "helmet": "head protection on a bike"}}
     """
 
 # Checks if words can be placed at given cell
-def can_place(grid, word, row, col, d, letter_index, empty='-'):
+def _can_place(grid, word, row, col, d, letter_index, empty='-'):
     rows = len(grid)
     cols = len(grid[0])
 
@@ -108,7 +163,7 @@ def can_place(grid, word, row, col, d, letter_index, empty='-'):
         return True
 
 # Place letters on grid, assuming can_place is true
-def place_letters(grid, word, row, col, d, letter_index):
+def _place_letters(grid, word, row, col, d, letter_index):
     if d == 'h':
         start_c = col - letter_index
         for k, ch in enumerate(word):
@@ -121,7 +176,7 @@ def place_letters(grid, word, row, col, d, letter_index):
     return grid
 
 # Build crossword grid
-def create_crossword(words, crossword):
+def _create_crossword(words, crossword):
     kept_words = {}
     number = 1
     for word in words:
@@ -129,10 +184,10 @@ def create_crossword(words, crossword):
         for letter_index, letter in enumerate(word):
             for i, row in enumerate(crossword):
                 # Checks if the letter is present and that it can fit in the grid
-                if letter in row and can_place(crossword,word,i,row.index(letter),direction,letter_index):
+                if letter in row and _can_place(crossword,word,i,row.index(letter),direction,letter_index):
                     j = row.index(letter)
                     loc=(i,j)
-                    place_letters(crossword,word,i,j,direction,letter_index) # updates grid
+                    _place_letters(crossword,word,i,j,direction,letter_index) # updates grid
                     # grid spot of the first letter, for tagging numbers
                     if direction == 'v':
                         first_letter = loc[0] - letter_index, loc[1]
@@ -153,7 +208,7 @@ def create_crossword(words, crossword):
     return crossword, kept_words
 
 # append the number to indicies of lists that match the first letter of words
-def add_numbers_to_grid(grid, number_coords):
+def _add_numbers_to_grid(grid, number_coords):
     for number, (r, c) in number_coords.items():
         if 0 <= r < len(grid) and 0 <= c < len(grid[0]):
             current_value = str(grid[r][c])
@@ -161,7 +216,7 @@ def add_numbers_to_grid(grid, number_coords):
     return grid
 
 # Removes exterior rows and columns if they're all "black squares"
-def simplify_grid(grid):
+def _simplify_grid(grid):
     # remove all rows that are all '-'
     filtered_rows = [row for row in grid if not all(cell == '-' for cell in row)]
     
@@ -173,63 +228,3 @@ def simplify_grid(grid):
         filtered_rows = [row[:-1] for row in filtered_rows]
         
     return filtered_rows
-
-
-def crossword(category, num_words):
-    # returns dictionary of { words: clues }
-    content=get_crossword_content(category, num_words)
-    
-    words=list(content.keys())
-    
-    grid_size = max(len(word) for word in words) + 20  # padding for intersections
-    mid_row = grid_size // 2
-    start_col = grid_size // 2
-    
-    # initialize grid
-    crossword = [['-' for _ in range(grid_size)] for _ in range(grid_size)]
-    
-    # find the longest word to place first
-    first_word = max(words, key=len)
-    words.remove(first_word)
-    
-    # place the first word
-    for i, letter in enumerate(first_word):
-        crossword[mid_row][start_col + i] = letter
-    
-    crosswordFilled, words_kept = create_crossword(words, crossword)
-
-    # adds first word to start of the word dict
-    words_kept = {
-        first_word: {
-            "number": 1,
-            "direction": "h",
-            "first_letter": (mid_row, start_col)
-        },
-        **words_kept
-    }
-    
-    # add clues to words dict
-    for word in content:
-        if word in words_kept:
-            words_kept[word]['clue'] = content[word]
-    
-    across_clues = []
-    down_clues = []
-    
-    for word, info in words_kept.items():
-        entry = {
-            "word": word,
-            "number": info["number"],
-            "clue": info["clue"]
-        }
-        if info["direction"] == "h":
-            across_clues.append(entry)
-        elif info["direction"] == "v":
-            down_clues.append(entry)
-    
-    first_letters = {info["number"]: info["first_letter"] for info in words_kept.values()}
-    
-    numbered_grid = add_numbers_to_grid(crosswordFilled, first_letters)
-    final_grid = simplify_grid(numbered_grid)
-
-    return final_grid, across_clues, down_clues
