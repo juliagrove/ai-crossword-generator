@@ -60,23 +60,3 @@ def logout_view(request):
     """
     logout(request)
     return redirect("crossword:home") 
-
-
-@login_required
-@require_POST
-def save_crossword_progress(request):
-    """
-    Save current crossword grid for this user+category.
-    Called ONLY when the user clicks the 'Save Crossword' button.
-    """
-    data = json.loads(request.body)
-
-    category = data.get("category")
-    grid_state = data.get("grid_state")
-
-    obj, created = SavedCrossword.objects.update_or_create(
-        user=request.user,
-        category=category,
-        defaults={"grid_state": grid_state},
-    )
-    return JsonResponse({"status": "ok", "saved_id": obj.id, "created": created})
