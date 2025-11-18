@@ -54,7 +54,14 @@
             container.innerHTML = html;
             spinner.style.display = 'none';
             loadingText.style.display = 'none';
+
             initAutoCheck();
+            initSaveButton();
+
+            // pass dynamic values into JS
+            window.CROSSWORD_CATEGORY = "{{ category|escapejs }}";
+            window.SAVE_CROSSWORD_URL = "{% url 'crossword:save_crossword' %}";
+
         })
         .catch(err => {
             console.error(err);
@@ -140,5 +147,66 @@
             });
         });
     }
+
+    function initSaveButton() {
+        const saveBtn = document.getElementById("save-crossword-btn");
+        if (!saveBtn) return;
+    
+        saveBtn.addEventListener("click", () => {
+            const gridState = getGridState();
+            const category = window.CROSSWORD_CATEGORY;
+    
+            fetch(window.SAVE_CROSSWORD_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify({
+                    category: category,
+                    grid_state: gridState,
+                }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Saved:", data);
+                alert("Crossword saved!");
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error saving crossword.");
+            });
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    function getGridState() {
+        const rows = [];
+        document.querySelectorAll(".crossword-table tr").forEach(tr => {
+            const row = [];
+            tr.querySelectorAll("input.crossword-input").forEach(input => {
+                row.push(input.value || "");
+            });
+            rows.push(row);
+        });
+        return rows;
+    }
+    
+
+    
 </script>
 {% endblock %}

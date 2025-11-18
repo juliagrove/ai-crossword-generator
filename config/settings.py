@@ -61,7 +61,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,3 +136,7 @@ GEMINI_MODEL_NAME = "gemini-2.0-flash"
 
 # Configure Gemini once at startup
 genai.configure(api_key=GEMINI_API_KEY)
+
+LOGIN_REDIRECT_URL = "crossword:home"
+LOGOUT_REDIRECT_URL = "crossword:home"
+LOGIN_URL = "login"

@@ -59,5 +59,10 @@
             <span class="slider">AUTO CHECK</span>
             </label>
         </label>
+        {% if user.is_authenticated %}
+            <button id="save-crossword-btn" type="button">Save Crossword</button>
+        {% else %}
+            <p><a href="{% url 'login' %}">Log in</a> to save your crossword.</p>
+        {% endif %}
     {% endif %}  
 </div>

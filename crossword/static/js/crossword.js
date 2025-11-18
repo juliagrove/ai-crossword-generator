@@ -112,3 +112,66 @@ function initCrosswordPage() {
     }
 }
 document.addEventListener('DOMContentLoaded', initCrosswordPage);
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function getGridState() {
+    const table = document.querySelector(".crossword-table");
+    const rows = [];
+
+    if (!table) return rows;
+
+    table.querySelectorAll("tr").forEach(tr => {
+        const row = [];
+        tr.querySelectorAll("input.crossword-input").forEach(input => {
+            row.push(input.value || "");
+        });
+        rows.push(row);
+    });
+
+    return rows;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const saveBtn = document.getElementById("save-crossword-btn");
+    if (!saveBtn) return;
+
+    saveBtn.addEventListener("click", () => {
+        const gridState = getGridState();
+        const category = window.CROSSWORD_CATEGORY || "";
+
+        fetch(window.SAVE_CROSSWORD_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({
+                category: category,
+                grid_state: gridState,
+            }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Saved:", data);
+            alert("Crossword saved!");
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error saving crossword.");
+        });
+    });
+});
