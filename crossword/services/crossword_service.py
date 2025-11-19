@@ -3,11 +3,7 @@ import os
 import random
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 from .llm_service import clue_generator
-
-load_dotenv()
 
 
 class CrosswordService:
