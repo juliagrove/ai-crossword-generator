@@ -1,6 +1,5 @@
 .env
 *.sqlite3
-*.txt
 *.ipynb
 __pycache__/
 .ipynb_checkpoints/
