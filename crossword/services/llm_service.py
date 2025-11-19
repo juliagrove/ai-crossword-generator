@@ -37,7 +37,6 @@ class CrosswordClueGenerator:
                     "response_json_schema": WordList.model_json_schema(),
                 },
             )
-
             return self._parse_json(response)
 
         except Exception as e:

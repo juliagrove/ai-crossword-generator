@@ -1,6 +1,13 @@
+import json
+import os
 import random
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 from .llm_service import clue_generator
+
+load_dotenv()
 
 
 class CrosswordService:
@@ -12,11 +19,14 @@ class CrosswordService:
     def __init__(self, clue_generator):
         self._clue_generator = clue_generator
 
-    def generate(self, category: str, num_words: int, use_fixture: bool = False):
+    def generate(self, category: str, num_words: int):
         """
         Public entrypoint: returns (grid, across_clues, down_clues)
         """
-        clues = self._clue_generator.generate(category, num_words)
+        if os.getenv("USE_SAMPLE_CROSSWORD_DATA", "false").lower() == "true":
+            clues = self._load_sample_data()
+        else:
+            clues = self._clue_generator.generate(category, num_words)
 
         crossword_filled, words_placed = self._build_grid(clues)
         first_letters, across_clues, down_clues = self._build_clues(clues, words_placed)
@@ -24,6 +34,16 @@ class CrosswordService:
         final_grid = self._simplify_grid(numbered_grid)
 
         return final_grid, across_clues, down_clues
+
+    def _load_sample_data(self):
+        """
+        Instead of calling the API, use premade crosswords for testing
+        """
+        sample_path = (
+            Path(__file__).resolve().parent.parent / "tests" / "large_sample.json"
+        )
+        with open(sample_path) as f:
+            return json.load(f)
 
     def _build_clues(self, clues, words_placed):
         # add clues to words dict
