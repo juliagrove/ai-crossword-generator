@@ -39,7 +39,7 @@ h2 {
 
 .saved-crossword-list li:hover {
     box-shadow: 0px 5px 14px rgba(0, 0, 0, 0.18);
-    transform: translateY(-2px); /* subtle lift */
+    transform: translateY(-2px);
 }
 
 .open-link {
@@ -51,6 +51,35 @@ h2 {
     margin-left: 10px;
 }
 
-.open-delete-buttons {
+.open-link:hover {
+    color: rgb(191, 188, 188);
+}
+
+.delete-form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.delete-link {
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+    text-decoration: underline;
+    color: white;
+    background-color: cadetblue;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.delete-link:hover {
+    color: rgb(191, 188, 188);
+}
+
+.saved-buttons {
     align-items: right;
 }

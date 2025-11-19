@@ -1,15 +1,24 @@
+import json
 import random
+from pathlib import Path
 
 from .llm_service import clue_generator
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+json_path = BASE_DIR / "tests" / "dog_sample.json"
 
-def crossword(category, num_words):
+
+def crossword(category, num_words, test=False):
     """
     Main entry point
     """
-    clues = clue_generator.generate(
-        category, num_words
-    )  # get structured gemini output
+    if test:
+        with open(json_path) as f:
+            clues = json.load(f)
+    else:
+        clues = clue_generator.generate(
+            category, num_words
+        )  # get structured gemini output
 
     crossword_filled, words_placed = _build_grid(
         clues

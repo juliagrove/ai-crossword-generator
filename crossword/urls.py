@@ -9,4 +9,5 @@ urlpatterns = [
     path("save/", views.save_crossword, name="save_crossword"),
     path("saved/", views.saved_crosswords, name="saved_crosswords"),
     path("saved/<int:pk>/", views.load_saved_crossword, name="load_saved_crossword"),
+    path("saved/<int:pk>/delete/", views.delete_saved_crossword, name="delete_saved_crossword"),
 ]

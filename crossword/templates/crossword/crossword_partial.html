@@ -71,14 +71,20 @@
 
         {% if user.is_authenticated %}
             <button 
-                id="save-crossword-btn" 
+                id="save-crossword-btn"
+                class="save-btn"
                 type="button"
                 data-save-url="{% url 'crossword:save_crossword' %}"
             >
-                SAVE CROSSWORD
+                SAVE PROGRESS
             </button>
         {% else %}
-            <p><a href="{% url 'login' %}">Log in</a> to save your crossword.</p>
+            <button
+                class="save-btn"
+                onclick="window.location.href='{% url 'login' %}'"
+            >
+                LOGIN TO SAVE
+            </button>
         {% endif %}
     {% endif %}  
 </div>

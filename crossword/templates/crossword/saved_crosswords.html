@@ -15,9 +15,15 @@
                         <strong>{{ cw.category }}:</strong>
                         <span>saved on {{ cw.created_at|date:"M d, Y H:i" }}</span>
                     </div>
-                    <div class="open-delete-buttons">
+                    <div class="saved-buttons">
                         <a class="open-link" href="{% url 'crossword:load_saved_crossword' cw.id %}">Open</a>
-                        <a class="open-link" href="{% url 'crossword:load_saved_crossword' cw.id %}">Delete</a>
+                        <form method="POST" 
+                            action="{% url 'crossword:delete_saved_crossword' cw.id %}" 
+                            class="delete-form"
+                            onsubmit="return confirm('Delete this crossword?')">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-link">Delete</button>
+                        </form>
                     </div>
                 </li>
             {% endfor %}

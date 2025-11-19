@@ -122,3 +122,13 @@ def load_saved_crossword(request, pk):
         "from_saved": True,
     }
     return render(request, "crossword/crossword.html", context)
+
+@login_required
+def delete_saved_crossword(request, pk):
+    cw = get_object_or_404(SavedCrossword, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        cw.delete()
+        return redirect("crossword:saved_crosswords")
+
+    return redirect("crossword:saved_crosswords")
