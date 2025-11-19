@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from .models import SavedCrossword
-from .services.crossword_service import crossword
+from .services.crossword_service import crossword_service
 
 
 def home(request):
@@ -21,7 +21,9 @@ def home(request):
         down_clues = []
 
         try:
-            crossword_grid, across_clues, down_clues = crossword(category, num_words=30)
+            crossword_grid, across_clues, down_clues = crossword_service.generate(
+                category, num_words=40
+            )
 
         except Exception as e:
             error_message = str(e)
@@ -122,6 +124,7 @@ def load_saved_crossword(request, pk):
         "from_saved": True,
     }
     return render(request, "crossword/crossword.html", context)
+
 
 @login_required
 def delete_saved_crossword(request, pk):
