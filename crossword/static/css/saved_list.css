@@ -1,0 +1,56 @@
+.saved-crosswords-page {
+    justify-content: center;
+    width: 100%;
+}
+
+h2 {
+    text-align: center;
+    padding: 40px;
+    margin-top: 50px;
+    margin-bottom: 15px;
+    color:white;
+    font-size: 40px;
+}
+
+.saved-crossword-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 250px 40px 250px;
+    padding: 30px;
+    background-color: white;
+    color: cadetblue;
+    border-radius: 25px;
+    font-size: 20px;
+    transition: box-shadow 0.25s ease, transform 0.15s ease;
+    cursor: pointer;
+}
+
+
+.saved-crosswords-page p {
+    background-color: white;
+    color: cadetblue;
+    font-size: 30px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 0 200px 0 200px;
+}
+
+.saved-crossword-list li:hover {
+    box-shadow: 0px 5px 14px rgba(0, 0, 0, 0.18);
+    transform: translateY(-2px); /* subtle lift */
+}
+
+.open-link {
+    color: white;
+    background-color: cadetblue;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.open-delete-buttons {
+    align-items: right;
+}

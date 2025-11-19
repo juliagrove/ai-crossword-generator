@@ -1,3 +1,4 @@
+# crossword/models.py
 from django.conf import settings
 from django.db import models
 
@@ -9,7 +10,12 @@ class SavedCrossword(models.Model):
         related_name="saved_crosswords",
     )
     category = models.CharField(max_length=200)
-    grid_state = models.JSONField()
+    
+    progress_grid  = models.JSONField()
+    solution_grid = models.JSONField()
+    
+    across_clues = models.JSONField(default=list)
+    down_clues = models.JSONField(default=list)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

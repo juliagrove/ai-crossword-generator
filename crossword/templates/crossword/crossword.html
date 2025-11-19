@@ -3,5 +3,9 @@
 {% block title %}Crossword | AI Crossword Generator{% endblock %}
 
 {% block content %}
-    {% include "crossword/crossword_partial.html" %}
+    <main>
+        <div id="crossword-container">
+            {% include "crossword/crossword_partial.html" %}
+        </div>
+    </main>
 {% endblock %}

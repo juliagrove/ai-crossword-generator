@@ -1,13 +1,16 @@
 # crossword/views.py
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
-from .services.crossword_service import crossword
-from django.contrib.auth import logout
 import json
-from django.http import JsonResponse, HttpResponseNotAllowed
+
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+
 from .models import SavedCrossword
+from .services.crossword_service import crossword
+
 
 def home(request):
     if request.method == "POST":
@@ -18,7 +21,7 @@ def home(request):
         down_clues = []
 
         try:
-            crossword_grid, across_clues, down_clues = crossword(category, num_words=20)
+            crossword_grid, across_clues, down_clues = crossword(category, num_words=30)
 
         except Exception as e:
             error_message = str(e)
@@ -28,7 +31,9 @@ def home(request):
             "across_clues": across_clues,
             "down_clues": down_clues,
             "error_message": error_message,
-            "category": category
+            "category": category,
+            "progress_grid": [],
+            "from_saved": False,
         }
 
         # if request came from fetch on the home page, return ONLY the partial
@@ -46,7 +51,7 @@ def signup(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save() # creates new user
+            form.save()  # creates new user
             return redirect("login")
     else:
         form = UserCreationForm()
@@ -55,8 +60,65 @@ def signup(request):
 
 
 def logout_view(request):
-    """
-    Log the user out and redirect to the home page
-    """
     logout(request)
-    return redirect("crossword:home") 
+    return redirect("crossword:home")
+
+
+@login_required
+@require_POST
+def save_crossword(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+
+        category = data.get("category")
+        solution_grid = data.get("solution_grid")
+        progress_grid = data.get("progress_grid")
+        across_clues = data.get("across_clues")
+        down_clues = data.get("down_clues")
+
+        if not solution_grid:
+            return JsonResponse(
+                {"success": False, "error": "Missing required fields"},
+                status=400,
+            )
+
+        saved = SavedCrossword.objects.create(
+            user=request.user,
+            category=category,
+            solution_grid=solution_grid,
+            progress_grid=progress_grid,
+            across_clues=across_clues,
+            down_clues=down_clues,
+        )
+
+        return JsonResponse({"success": True, "id": saved.id})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+# List the users saved crosswords/progress
+@login_required
+def saved_crosswords(request):
+    crosswords = SavedCrossword.objects.filter(user=request.user).order_by("updated_at")
+    context = {
+        "crosswords": crosswords,
+    }
+    return render(request, "crossword/saved_crosswords.html", context)
+
+
+@login_required
+def load_saved_crossword(request, pk):
+    # load saved crosswords the same way new ones are loaded
+    saved = get_object_or_404(SavedCrossword, pk=pk, user=request.user)
+
+    context = {
+        "crossword_grid": saved.solution_grid,
+        "across_clues": saved.across_clues,
+        "down_clues": saved.down_clues,
+        "category": saved.category,
+        "progress_grid": saved.progress_grid,
+        "error_message": None,
+        "from_saved": True,
+    }
+    return render(request, "crossword/crossword.html", context)

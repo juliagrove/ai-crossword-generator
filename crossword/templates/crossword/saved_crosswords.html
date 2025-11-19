@@ -1,0 +1,29 @@
+{% extends "crossword/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/saved_list.css' %}">
+
+<div class="saved-crosswords-page">
+    <h2>Saved Crosswords</h2>
+
+    {% if crosswords %}
+        <ul class="saved-crossword-list">
+            {% for cw in crosswords %}
+                <li>
+                    <div class="left">
+                        <strong>{{ cw.category }}:</strong>
+                        <span>saved on {{ cw.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="open-delete-buttons">
+                        <a class="open-link" href="{% url 'crossword:load_saved_crossword' cw.id %}">Open</a>
+                        <a class="open-link" href="{% url 'crossword:load_saved_crossword' cw.id %}">Delete</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You don’t have any saved crosswords.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,19 +1,20 @@
 // crossword/static/js/crossword.js
 function initCrosswordPage() {
-    document.getElementById('crosswordForm').addEventListener('submit', function (e) {
+    const form = document.getElementById('crosswordForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
-    
-        const form = this;
+
         const formData = new FormData(form);
         const spinner = document.getElementById('loading-spinner');
         const loadingText = document.getElementById('loading-text');
         const container = document.getElementById('crossword-container');
-    
-        // loading symbol
+
         spinner.style.display = 'block';
         loadingText.style.display = 'block';
         container.innerHTML = '';
-    
+
         fetch(form.action, {
             method: 'POST',
             body: formData,
@@ -24,6 +25,8 @@ function initCrosswordPage() {
             container.innerHTML = html;
             spinner.style.display = 'none';
             loadingText.style.display = 'none';
+
+            restoreProgressGridIfPresent();
             initAutoCheck();
         })
         .catch(err => {
@@ -32,83 +35,230 @@ function initCrosswordPage() {
             loadingText.style.display = 'none';
         });
     });
-    
-    // handles Auto Check + auto move cells
-    function initAutoCheck() {
-        const inputs = Array.from(document.querySelectorAll(".crossword-input"));
-        const toggle = document.getElementById("errorToggle");
-        if (!toggle || !inputs.length) return;
-    
-        let autoCheck = toggle.checked;
-    
-        function styleInput(input) {
-            const correct = (input.dataset.answer || "").toUpperCase();
-            const val = (input.value || "").toUpperCase();
-    
-            if (val === "") {
+}
+
+// handles Auto Check + auto move cells
+function initAutoCheck() {
+    const inputs = Array.from(document.querySelectorAll(".crossword-input"));
+    const toggle = document.getElementById("errorToggle");
+    if (!toggle || !inputs.length) return;
+
+    let autoCheck = toggle.checked;
+
+    function styleInput(input) {
+        const correct = (input.dataset.answer || "").toUpperCase();
+        const val = (input.value || "").toUpperCase();
+
+        if (val === "") {
+            input.style.color = "black";
+            input.style.fontWeight = "normal";
+        } else if (val === correct) {
+            input.style.color = "black";
+            input.style.fontWeight = "bold";
+        } else {
+            input.style.color = "red";
+            input.style.fontWeight = "bold";
+        }
+    }
+
+    function checkAllInputs() {
+        inputs.forEach(styleInput);
+    }
+
+    // Toggle for auto check feature
+    toggle.addEventListener("change", () => {
+        autoCheck = toggle.checked;
+        if (autoCheck) {
+            checkAllInputs();
+        } else {
+            inputs.forEach(input => {
                 input.style.color = "black";
                 input.style.fontWeight = "normal";
-            } else if (val === correct) {
-                input.style.color = "black";
-                input.style.fontWeight = "bold";
-            } else {
-                input.style.color = "red";
-                input.style.fontWeight = "bold";
+            });
+        }
+    });
+    
+    // handling cell inputs
+    inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+            let val = (input.value || "").toUpperCase();
+            
+            // prevent spaces as cell input
+            if (val === " ") {
+                input.value = "";
+                return;
             }
-        }
-    
-        function checkAllInputs() {
-            inputs.forEach(styleInput);
-        }
-    
-        // Toggle for auto check feature
-        toggle.addEventListener("change", () => {
-            autoCheck = toggle.checked;
-            if (autoCheck) {
-                checkAllInputs();
-            } else {
-                inputs.forEach(input => {
-                    input.style.color = "black";
-                    input.style.fontWeight = "normal";
-                });
+            
+            // keep only one character (last typed)
+            if (val.length > 1) {
+                val = val.slice(-1);
+            }
+            input.value = val;
+
+            // auto move to next input if a character was entered (need to implement vertical wrods)
+            if (val !== "" && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+
+            if (!autoCheck) return;
+            styleInput(input);
+        });
+
+        // Auto move through cells on delete (need to implement for down words)
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace" && input.value === "" && index > 0) {
+                e.preventDefault();
+                inputs[index - 1].focus();
+                inputs[index - 1].value = "";
             }
         });
-        
-        // handling cell inputs
-        inputs.forEach((input, index) => {
-            input.addEventListener("input", () => {
-                let val = (input.value || "").toUpperCase();
-                
-                // prevent spaces as cell input
-                if (val === " ") {
-                    input.value = "";
-                    return;
-                }
-                
-                // keep only one character (last typed)
-                if (val.length > 1) {
-                    val = val.slice(-1);
-                }
-                input.value = val;
-    
-                // auto move to next input if a character was entered (need to implement vertical wrods)
-                if (val !== "" && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-    
-                if (!autoCheck) return;
-                styleInput(input);
+    });
+}
+
+ //helpers
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Build a 2D array from the current DOM grid
+function buildProgressGrid() {
+    const rows = Array.from(
+        document.querySelectorAll(".crossword-table tr")
+    );
+
+    return rows.map((row) => {
+        const cells = Array.from(row.querySelectorAll("td"));
+        return cells.map((td) => {
+            const input = td.querySelector("input.crossword-input");
+
+            if (!input) {
+                // black square
+                return "-";
+            }
+
+            const val = input.value.toUpperCase();
+            return val || "";
+        });
+    });
+}
+
+function getCrosswordDataFromDom() {
+    const solutionEl = document.getElementById("solution-grid-data");
+    const acrossEl = document.getElementById("across-clues-data");
+    const downEl = document.getElementById("down-clues-data");
+    const categoryEl = document.getElementById("category-data");
+
+    if (!solutionEl || !acrossEl || !downEl || !categoryEl) {
+        return null;
+    }
+
+    return {
+        solutionGrid: JSON.parse(solutionEl.textContent),
+        acrossClues: JSON.parse(acrossEl.textContent),
+        downClues: JSON.parse(downEl.textContent),
+        category: JSON.parse(categoryEl.textContent),
+    };
+}
+
+// --- Event delegation for Save button ---
+
+document.addEventListener("click", async (event) => {
+    const target = event.target;
+
+    if (target && target.id === "save-crossword-btn") {
+        const data = getCrosswordDataFromDom();
+        if (!data) {
+            alert("Crossword data not found in DOM.");
+            return;
+        }
+
+        const progressGrid = buildProgressGrid();
+        const csrftoken = getCookie("csrftoken");
+        const saveUrl = target.dataset.saveUrl;
+
+        try {
+            const response = await fetch(saveUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken,
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify({
+                    category: data.category,
+                    solution_grid: data.solutionGrid,
+                    progress_grid: progressGrid,
+                    across_clues: data.acrossClues,
+                    down_clues: data.downClues,
+                }),
             });
 
-            // Auto move through cells on delete (need to implement for down words)
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Backspace" && input.value === "" && index > 0) {
-                    e.preventDefault();
-                    inputs[index - 1].focus();
-                    inputs[index - 1].value = "";
-                }
-            });
-        });
+            const json = await response.json();
+
+            if (json.success) {
+                alert("Crossword saved! (id=" + json.id + ")");
+            } else {
+                alert("Failed to save crossword: " + (json.error || "Unknown error"));
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Network error while saving crossword.");
+        }
     }
+});
+
+function restoreProgressGridIfPresent() {
+    const progressEl = document.getElementById("progress-grid-data");
+    if (!progressEl) return;
+
+    let progressGrid;
+    try {
+        progressGrid = JSON.parse(progressEl.textContent);
+    } catch (e) {
+        console.warn("Could not parse progress grid", e);
+        return;
+    }
+    if (!Array.isArray(progressGrid) || progressGrid.length === 0) {
+        return;
+    }
+
+    const rows = Array.from(document.querySelectorAll(".crossword-table tr"));
+
+    rows.forEach((rowEl, r) => {
+        const cells = Array.from(rowEl.querySelectorAll("td"));
+        cells.forEach((td, c) => {
+            const input = td.querySelector("input.crossword-input");
+            if (!input) return;
+
+            if (
+                r < progressGrid.length &&
+                Array.isArray(progressGrid[r]) &&
+                c < progressGrid[r].length
+            ) {
+                const val = progressGrid[r][c];
+                if (val && typeof val === "string") {
+                    input.value = val.toUpperCase();
+                }
+            }
+        });
+    });
 }
-document.addEventListener('DOMContentLoaded', initCrosswordPage);
+
+document.addEventListener("DOMContentLoaded", () => {
+    initCrosswordPage();
+    restoreProgressGridIfPresent();
+    initAutoCheck();
+});

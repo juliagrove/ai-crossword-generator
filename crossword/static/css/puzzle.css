@@ -1,3 +1,9 @@
+#crossword-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
 table {
     table-layout: fixed;
 }
@@ -157,8 +163,9 @@ input.crossword-input:focus {
     border-color: white;
     background-color: transparent;
     margin-left: 50px;
+    font-weight: bold;
 }
-  
+
 .switch {
     position: relative;
     display: inline-block;
@@ -187,19 +194,6 @@ input.crossword-input:focus {
     background-color: transparent;
 }
 
-/* .slider::before {
-    content: "";
-    position: absolute;
-    height: 22px;
-    width: 22px;
-    left: 3px;
-    top: 3px;
-    background-color: #f5f7fa;
-    transition: 0.25s;
-    border-radius: 50%;
-}
-   */
-  /* ON state */
 .switch input:checked + .slider {
     background-color: white;
     color: cadetblue;
@@ -223,4 +217,29 @@ input.crossword-input:focus {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+#save-crossword-btn {
+    border-radius: 100px;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.15s ease;
+}
+
+#save-crossword-btn:hover {
+    background-color: white;
+    color: cadetblue;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
 }

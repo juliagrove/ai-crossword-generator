@@ -44,10 +44,6 @@ class CrosswordClueGenerator:
             raise RuntimeError(f"Gemini API error: {e}")
 
     def _build_prompt(self, category, num_words):
-        # return f"""
-        #     You are a crossword generator. Give me { num_words } words and short clues that follow the category: { category }.
-        #     Do NOT generate any additional information besides the words and their clues. The output should be Word: Clue
-        # """
         return f"""
             You are a crossword generator. Give me { num_words } words and short clues that follow the category: { category }. 
             Do NOT generate any additonal information other than the Word and its clue. 

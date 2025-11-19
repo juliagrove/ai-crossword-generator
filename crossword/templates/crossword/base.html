@@ -20,10 +20,10 @@
         <h1 class="nav-title">Play It Your Way</h1>
     
         <div class="nav-right">
-
+            <a href="{% url 'crossword:home' %}">Play</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'logout' %}">Logout</a>
-                <a href="{% url 'crossword:home' %}">Saved Crosswords</a>
+                <a href="{% url 'crossword:saved_crosswords' %}">Saved Crosswords</a>
             {% else %}
                 <a href="{% url 'login' %}">Login to Save Progress!</a>
             {% endif %}
@@ -39,5 +39,6 @@
     {% block extra_scripts %}
     
     {% endblock %}
+    <script src="{% static 'js/crossword.js' %}"></script>
 </body>
 </html>

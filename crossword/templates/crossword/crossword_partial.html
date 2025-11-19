@@ -1,3 +1,4 @@
+{% load static %}
 <div class="crossword-container">
     {% if error_message %}
         <div class="alert">
@@ -55,12 +56,27 @@
         <!-- Toggle for showing correct/incorrect cells  -->
         <label class="toggle-container">
             <label class="switch">
-            <input type="checkbox" id="errorToggle" checked>
+                <input type="checkbox"
+                id="errorToggle"
+                {% if not from_saved %}checked{% endif %}>         
             <span class="slider">AUTO CHECK</span>
             </label>
         </label>
+
+        {{ crossword_grid|json_script:"solution-grid-data" }}
+        {{ across_clues|json_script:"across-clues-data" }}
+        {{ down_clues|json_script:"down-clues-data" }}
+        {{ category|json_script:"category-data" }}
+        {{ progress_grid|default:"[]"|json_script:"progress-grid-data" }}
+
         {% if user.is_authenticated %}
-            <button id="save-crossword-btn" type="button">Save Crossword</button>
+            <button 
+                id="save-crossword-btn" 
+                type="button"
+                data-save-url="{% url 'crossword:save_crossword' %}"
+            >
+                SAVE CROSSWORD
+            </button>
         {% else %}
             <p><a href="{% url 'login' %}">Log in</a> to save your crossword.</p>
         {% endif %}

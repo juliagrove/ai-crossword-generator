@@ -7,7 +7,10 @@ def crossword(category, num_words):
     """
     Main entry point
     """
-    clues = clue_generator.generate(category, num_words)  # get structured gemini output
+    clues = clue_generator.generate(
+        category, num_words
+    )  # get structured gemini output
+
     crossword_filled, words_placed = _build_grid(
         clues
     )  # get crossword grid and words dict
