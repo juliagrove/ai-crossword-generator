@@ -178,6 +178,25 @@ function getCrosswordDataFromDom() {
 document.addEventListener("click", async (event) => {
     const target = event.target;
 
+    // Reveal grid button
+    if (target && target.id === "reveal-solution-btn") {
+        if (!confirm("Are you sure you want to reveal the full solution?")) {
+            return;
+        }
+        const inputs = Array.from(document.querySelectorAll(".crossword-input"));
+
+        inputs.forEach((input) => {
+            const correct = (input.dataset.answer || "").toUpperCase();
+            input.value = correct;
+
+            const evt = new Event("input", { bubbles: true });
+            input.dispatchEvent(evt);
+        });
+
+        return;
+    }
+
+    // save crossword button
     if (target && target.id === "save-crossword-btn") {
         const data = getCrosswordDataFromDom();
         if (!data) {
@@ -209,7 +228,7 @@ document.addEventListener("click", async (event) => {
             const json = await response.json();
 
             if (json.success) {
-                alert("Crossword saved! (id=" + json.id + ")");
+                alert("Crossword Successfully Saved!");
             } else {
                 alert("Failed to save crossword: " + (json.error || "Unknown error"));
             }

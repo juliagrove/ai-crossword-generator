@@ -8,25 +8,40 @@
             </div>
         </div>
     {% else %}
-        <!-- List of Clues -->
-        <div class="wordList">
-            <div class="across-clues">
-                <h3>ACROSS</h3>
-                <ul>
-                    {% for clue in across_clues %}
-                        <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
-                    {% endfor %}
-                </ul>
+        <div class="left-side">
+
+            <!-- Reveal solution button -->
+            <div class="reveal-container">
+                <button 
+                    id="reveal-solution-btn" 
+                    class="save-btn" 
+                    type="button"
+                >
+                    REVEAL SOLUTION
+                </button>
             </div>
-            <div class="down-clues">
-                <h3>DOWN</h3>
-                <ul>
-                    {% for clue in down_clues %}
-                        <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
-                    {% endfor %}
-                </ul>
+
+            <!-- List of Clues -->
+            <div class="wordList">
+                <div class="across-clues">
+                    <h3>ACROSS</h3>
+                    <ul>
+                        {% for clue in across_clues %}
+                            <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="down-clues">
+                    <h3>DOWN</h3>
+                    <ul>
+                        {% for clue in down_clues %}
+                            <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
+
         <!-- Crossword Grid -->
         <div class="grid">
             <table class="crossword-table">
@@ -53,6 +68,7 @@
             {% endfor %}
             </table>
         </div>
+
         <!-- Toggle for showing correct/incorrect cells  -->
         <label class="toggle-container">
             <label class="switch">
