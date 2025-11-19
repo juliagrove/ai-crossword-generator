@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from crossword.views import signup, logout_view
+from django.views.generic import RedirectView
 
 
 urlpatterns = [
@@ -28,4 +29,7 @@ urlpatterns = [
     ), name="login"),
     path("accounts/signup/", signup, name="signup"),
     path("accounts/logout/", logout_view, name="logout"),
+    
+    #temp fix
+    path("", RedirectView.as_view(url="/crossword/", permanent=False)),
 ]
