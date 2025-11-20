@@ -80,17 +80,7 @@ input.crossword-input:focus {
     border-color: #007bff;
     outline: none;
 }
-/* 
-.grid {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: auto; 
-    height: auto;
-    margin: 0px;
-    overflow: visible;
-    margin-bottom: 50px;
-} */
+
 .grid {
     display: flex;
     justify-content: center;
@@ -98,7 +88,6 @@ input.crossword-input:focus {
     flex: 0 0 auto;
     margin: 0;
     margin-bottom: 50px;
-    overflow: auto;
     width: auto;
     height: auto;
 }
