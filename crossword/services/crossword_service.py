@@ -239,6 +239,7 @@ class CrosswordService:
                         crossword, word, i, j, direction, letter_index
                     ):
                         continue
+                    number += 1
                     # place letters and tag clue number
                     self._place_letters(
                         crossword, word, i, j, direction, letter_index, number
@@ -249,7 +250,7 @@ class CrosswordService:
                     else:
                         first_letter = (i, j - letter_index)
 
-                    number += 1
+                    # number += 1
                     # dictionary to only save words that were placed in the puzzle
                     kept_words[word] = {
                         "number": number,
@@ -265,7 +266,15 @@ class CrosswordService:
         for number, (r, c) in number_coords.items():
             if 0 <= r < len(grid) and 0 <= c < len(grid[0]):
                 cell = grid[r][c]
-                cell["label"] = number  # number labels
+                existing = cell.get("label")
+                if existing is None:
+                    cell["label"] = str(number)
+                # case when cell is the start letter of 2 words
+                else:
+                    existing_str = str(existing)
+                    parts = {p.strip() for p in existing_str.split("/")}
+                    if str(number) not in parts:
+                        cell["label"] = existing_str + "/" + str(number)
         return grid
 
     # Removes exterior rows and columns if they're all "black squares"

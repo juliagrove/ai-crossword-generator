@@ -266,10 +266,15 @@ input.crossword-input:focus {
 
 .white-square.highlighted,
 .white-square.highlighted input {
-    background-color: #dfb8b8;
+    background-color:  #ffcbcb;
+}
+
+.clue-item {
+    padding:5px;
 }
 
 .clue-item.highlighted-clue {
-    background-color: #fff8b3;
-    font-weight: 600;
+    background-color:  #ffcbcb;
+    padding: 5px;
+    border-radius: 8px;
 }

@@ -64,8 +64,8 @@
                         {% else %}
                             <td
                                 class="white-square"
-                                data-across-number="{{ cell.across_number }}"
-                                data-down-number="{{ cell.down_number }}"
+                                data-across-number="{% if cell.across_number %}{{ cell.across_number }}{% endif %}"
+                                data-down-number="{% if cell.down_number %}{{ cell.down_number }}{% endif %}"
                             >
                                 <div class="cell">
                                     {% if cell.label %}
