@@ -263,3 +263,18 @@ input.crossword-input:focus {
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.18);
     transform: translateY(-1px);
 }
+
+.white-square.highlighted,
+.white-square.highlighted input {
+    background-color:  #ffcbcb;
+}
+
+.clue-item {
+    padding:5px;
+}
+
+.clue-item.highlighted-clue {
+    background-color:  #ffcbcb;
+    padding: 5px;
+    border-radius: 8px;
+}

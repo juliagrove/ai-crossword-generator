@@ -27,7 +27,13 @@
                     <h3>ACROSS</h3>
                     <ul>
                         {% for clue in across_clues %}
-                            <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
+                            <li
+                                class="clue-item"
+                                data-direction="across"
+                                data-clue-number="{{ clue.number }}"
+                            >
+                                <strong>{{ clue.number }}.</strong> {{ clue.clue }}
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -35,39 +41,50 @@
                     <h3>DOWN</h3>
                     <ul>
                         {% for clue in down_clues %}
-                            <li><strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
+                            <li
+                                class="clue-item"
+                                data-direction="down"
+                                data-clue-number="{{ clue.number }}"
+                            >
+                                <strong>{{ clue.number }}.</strong> {{ clue.clue }}</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Crossword Grid -->
-        <div class="grid">
-            <table class="crossword-table">
+       <!-- Crossword Grid -->
+       <div class="grid">
+        <table class="crossword-table">
             {% for row in crossword_grid %}
                 <tr>
-                {% for cell in row %}
-                    <td class="{% if cell == '-' %}black-square{% else %}white-square{% endif %}">
-                    {% if cell != '-' %}
-                        <div class="cell">
-                        {% if cell|length > 1 %}
-                            <span class="corner-number">{{ cell|slice:':-1' }}</span>
+                    {% for cell in row %}
+                        {% if cell.letter == '-' %}
+                            <td class="black-square"></td>
+                        {% else %}
+                            <td
+                                class="white-square"
+                                data-across-number="{% if cell.across_number %}{{ cell.across_number }}{% endif %}"
+                                data-down-number="{% if cell.down_number %}{{ cell.down_number }}{% endif %}"
+                            >
+                                <div class="cell">
+                                    {% if cell.label %}
+                                        <span class="corner-number">{{ cell.label }}</span>
+                                    {% endif %}
+                                    <input
+                                        type="text"
+                                        maxlength="1"
+                                        class="crossword-input"
+                                        data-answer="{{ cell.letter|upper }}"
+                                    />
+                                </div>
+                            </td>
                         {% endif %}
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="crossword-input"
-                            data-answer="{{ cell|slice:'-1:' }}" 
-                        />
-                        </div>
-                    {% endif %}
-                    </td>
-                {% endfor %}
+                    {% endfor %}
                 </tr>
             {% endfor %}
-            </table>
-        </div>
+        </table>
+    </div>
 
         <!-- Toggle for showing correct/incorrect cells  -->
         <label class="toggle-container">

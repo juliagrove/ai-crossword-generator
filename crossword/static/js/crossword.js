@@ -25,9 +25,11 @@ function initCrosswordPage() {
             container.innerHTML = html;
             spinner.style.display = 'none';
             loadingText.style.display = 'none';
-
+            
             restoreProgressGridIfPresent();
             initAutoCheck();
+            initClueHoverHighlight();
+            initCellHoverClueHighlight();
         })
         .catch(err => {
             console.error(err);
@@ -37,6 +39,80 @@ function initCrosswordPage() {
     });
 }
 
+function initCellHoverClueHighlight() {
+    const cells = document.querySelectorAll(".white-square");
+
+    cells.forEach(td => {
+        td.addEventListener("mouseenter", () => {
+            const acrossNumber = td.dataset.acrossNumber;
+            const downNumber = td.dataset.downNumber;
+
+            const direction = acrossNumber ? "across" : "down";
+            const clueNumber = acrossNumber || downNumber;
+            if (!clueNumber) return;
+
+            setWordHighlight(direction, clueNumber, true);
+        });
+
+        td.addEventListener("mouseleave", () => {
+            const acrossNumber = td.dataset.acrossNumber;
+            const downNumber = td.dataset.downNumber;
+            const direction = acrossNumber ? "across" : "down";
+            const clueNumber = acrossNumber || downNumber;
+            if (!clueNumber) return;
+
+            setWordHighlight(direction, clueNumber, false);
+        });
+    });
+}
+
+
+function initClueHoverHighlight() {
+    const clueItems = document.querySelectorAll(".clue-item");
+
+    clueItems.forEach(li => {
+        const direction = li.dataset.direction;
+        const clueNumber = li.dataset.clueNumber;
+
+        li.addEventListener("mouseenter", () => {
+            setWordHighlight(direction, clueNumber, true);
+        });
+
+        li.addEventListener("mouseleave", () => {
+            setWordHighlight(direction, clueNumber, false);
+        });
+    });
+}
+
+// Helper: highlight both the word AND its clue
+function setWordHighlight(direction, clueNumber, shouldHighlight) {
+    if (!clueNumber) return;
+
+    // highlight cells
+    const cellSelector =
+        direction === "across"
+            ? `.white-square[data-across-number="${clueNumber}"]`
+            : `.white-square[data-down-number="${clueNumber}"]`;
+
+    document.querySelectorAll(cellSelector).forEach(td => {
+        if (shouldHighlight) {
+            td.classList.add("highlighted");
+        } else {
+            td.classList.remove("highlighted");
+        }
+    });
+
+    // highlight clue
+    const clueSelector = `.clue-item[data-direction="${direction}"][data-clue-number="${clueNumber}"]`;
+    const clue = document.querySelector(clueSelector);
+    if (clue) {
+        if (shouldHighlight) {
+            clue.classList.add("highlighted-clue");
+        } else {
+            clue.classList.remove("highlighted-clue");
+        }
+    }
+}
 // handles Auto Check + auto move cells
 function initAutoCheck() {
     const inputs = Array.from(document.querySelectorAll(".crossword-input"));
@@ -280,4 +356,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initCrosswordPage();
     restoreProgressGridIfPresent();
     initAutoCheck();
+    initClueHoverHighlight();
+    initCellHoverClueHighlight();
 });
