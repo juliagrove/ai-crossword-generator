@@ -51,7 +51,7 @@ class CrosswordClueGenerator:
 
     def _parse_json(self, response):
         output = json.loads(response.text)
-        return {item["word"]: item["clue"] for item in output["clues"]}
+        return {item["word"].replace(" ", ""): item["clue"] for item in output["clues"]}
 
 
 clue_generator = CrosswordClueGenerator()
