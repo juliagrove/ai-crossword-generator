@@ -36,6 +36,7 @@ td {
     border-spacing: 0;
     table-layout: fixed;
     width: auto;
+    margin-top: 50px;
 }
 
 .crossword-table td {
@@ -52,15 +53,11 @@ td {
 /* No longer have black squares, clear illusion */
 .black-square {
     background-color: transparent;
-    /* width: 40px;
-    height: 40px; */
 }
 
 .white-square {
     background-color: white;
     border: 1px solid #000; 
-    /* width: 40px;
-    height: 40px; */
 }
 
 input.crossword-input {
@@ -86,7 +83,8 @@ input.crossword-input:focus {
     justify-content: center;
     align-items: center;
     flex: 0 0 auto;
-    margin: 0;
+    margin-left: 200px;
+    margin-right: 200px;
     margin-bottom: 50px;
     width: auto;
     height: auto;
@@ -115,7 +113,6 @@ input.crossword-input:focus {
     align-items: flex-start;
     justify-content: start;
     gap: 40px;
-    margin-top: 50px;
 }
  
 .wordList {
@@ -156,79 +153,19 @@ input.crossword-input:focus {
     margin-bottom: 10px;
 }
 
-.reveal-container {
-    margin-bottom: 10px;
-    width: 250px;
-}
-
 .left-side {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;       
     padding: 20px;
-    margin-right: 50px;
 }
 
-#reveal-solution-btn {
-    width: 100%;
-    text-align: center;
-}
-
-.toggle-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: white;
-    border-radius: 20px;
-    border-color: white;
-    background-color: transparent;
-    margin-left: 50px;
-    font-weight: bold;
-}
-
-.switch {
-    position: relative;
-    display: inline-block;
-    text-align: center;
-    width: 150px;
-    height: 35px;
-    font-size: 15px;
-}
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-/* need to fix this*/
-.slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background-color: #ccc;     
-    transition: 0.25s;
-    display: flex;    
-    align-items: center;
-    justify-content: center;
-    border-radius: 100px;
-    border: 2px solid white;
-    background-color: transparent;
-}
-
-.switch input:checked + .slider {
-    background-color: white;
-    color: cadetblue;
-}
-  
-.switch input:checked + .slider::before {
-    transform: translateX(24px); /* slide knob to right */
-}
 
 /* loading icon */
 .spinner {
-    border: 6px solid #f3f3f3;      /* Light gray background */
-    border-top: 6px solid #42494d;  /* Blue spinning color */
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #42494d;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -241,8 +178,32 @@ input.crossword-input:focus {
     100% { transform: rotate(360deg); }
 }
 
+.auto-check-btn.is-on {
+    background-color: white;
+    color: cadetblue;
+}
+
+.auto-check-btn {
+    border-radius: 25px;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    font-size: 15px;
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.15s ease;
+}
+
 .save-btn {
-    border-radius: 100px;
+    border-radius: 25px;
     border: 2px solid white;
     background-color: transparent;
     color: white;
@@ -280,4 +241,23 @@ input.crossword-input:focus {
     background-color:  #ffcbcb;
     padding: 5px;
     border-radius: 8px;
+}
+
+.left-buttons {
+    display: flex;
+    flex-direction: column;
+    width: 290px;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.left-buttons .save-btn {
+    width: 100%;
+    text-align: center;
+}
+
+
+.left-buttons .auto-check-btn {
+    width: 100%;
+    text-align: center;
 }

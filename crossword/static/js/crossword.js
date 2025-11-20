@@ -116,10 +116,10 @@ function setWordHighlight(direction, clueNumber, shouldHighlight) {
 // handles Auto Check + auto move cells
 function initAutoCheck() {
     const inputs = Array.from(document.querySelectorAll(".crossword-input"));
-    const toggle = document.getElementById("errorToggle");
-    if (!toggle || !inputs.length) return;
+    const button = document.getElementById("auto-check-btn");
+    if (!button || !inputs.length) return;
 
-    let autoCheck = toggle.checked;
+    let autoCheck = button.classList.contains("is-on");
 
     function styleInput(input) {
         const correct = (input.dataset.answer || "").toUpperCase();
@@ -141,46 +141,61 @@ function initAutoCheck() {
         inputs.forEach(styleInput);
     }
 
-    // Toggle for auto check feature
-    toggle.addEventListener("change", () => {
-        autoCheck = toggle.checked;
+    function resetStyles() {
+        inputs.forEach(input => {
+            input.style.color = "black";
+            input.style.fontWeight = "normal";
+        });
+    }
+
+    function updateButtonUI() {
         if (autoCheck) {
+            button.classList.add("is-on");
+            button.textContent = "AUTO CHECK";
             checkAllInputs();
         } else {
-            inputs.forEach(input => {
-                input.style.color = "black";
-                input.style.fontWeight = "normal";
-            });
+            button.classList.remove("is-on");
+            button.textContent = "AUTO CHECK";
+            resetStyles();
         }
+    }
+    // Click to toggle auto-check
+    button.addEventListener("click", () => {
+        autoCheck = !autoCheck;
+        updateButtonUI();
     });
-    
+
+    updateButtonUI();
     // handling cell inputs
     inputs.forEach((input, index) => {
         input.addEventListener("input", () => {
             let val = (input.value || "").toUpperCase();
-            
+
             // prevent spaces as cell input
             if (val === " ") {
                 input.value = "";
                 return;
             }
-            
+
             // keep only one character (last typed)
             if (val.length > 1) {
                 val = val.slice(-1);
             }
             input.value = val;
 
-            // auto move to next input if a character was entered (need to implement vertical wrods)
+            // auto move to next input if a character was entered
             if (val !== "" && index < inputs.length - 1) {
                 inputs[index + 1].focus();
             }
 
-            if (!autoCheck) return;
-            styleInput(input);
+            if (autoCheck) {
+                styleInput(input);
+            }
+
+            // confetti feature
+            // checkForCompletion();
         });
 
-        // Auto move through cells on delete (need to implement for down words)
         input.addEventListener("keydown", (e) => {
             if (e.key === "Backspace" && input.value === "" && index > 0) {
                 e.preventDefault();

@@ -9,9 +9,42 @@
         </div>
     {% else %}
         <div class="left-side">
+            <div class="left-buttons">
+                <!-- Auto check button -->
+                <button
+                    id="auto-check-btn"
+                    class="auto-check-btn {% if not from_saved %}is-on{% endif %}"
+                    type="button"
+                >
+                    AUTO CHECK
+                </button>
 
-            <!-- Reveal solution button -->
-            <div class="reveal-container">
+                {{ crossword_grid|json_script:"solution-grid-data" }}
+                {{ across_clues|json_script:"across-clues-data" }}
+                {{ down_clues|json_script:"down-clues-data" }}
+                {{ category|json_script:"category-data" }}
+                {{ progress_grid|default:"[]"|json_script:"progress-grid-data" }}
+
+                <!-- Save Crossword Button -->
+                {% if user.is_authenticated %}
+                    <button 
+                        id="save-crossword-btn"
+                        class="save-btn"
+                        type="button"
+                        data-save-url="{% url 'crossword:save_crossword' %}"
+                    >
+                        SAVE PROGRESS
+                    </button>
+                {% else %}
+                    <button
+                        class="save-btn"
+                        onclick="window.location.href='{% url 'login' %}'"
+                    >
+                        LOGIN TO SAVE
+                    </button>
+                {% endif %}
+
+                <!-- Reveal solution button -->
                 <button 
                     id="reveal-solution-btn" 
                     class="save-btn" 
@@ -20,7 +53,6 @@
                     REVEAL SOLUTION
                 </button>
             </div>
-
             <!-- List of Clues -->
             <div class="wordList">
                 <div class="across-clues">
@@ -85,39 +117,5 @@
             {% endfor %}
         </table>
     </div>
-
-        <!-- Toggle for showing correct/incorrect cells  -->
-        <label class="toggle-container">
-            <label class="switch">
-                <input type="checkbox"
-                id="errorToggle"
-                {% if not from_saved %}checked{% endif %}>         
-            <span class="slider">AUTO CHECK</span>
-            </label>
-        </label>
-
-        {{ crossword_grid|json_script:"solution-grid-data" }}
-        {{ across_clues|json_script:"across-clues-data" }}
-        {{ down_clues|json_script:"down-clues-data" }}
-        {{ category|json_script:"category-data" }}
-        {{ progress_grid|default:"[]"|json_script:"progress-grid-data" }}
-
-        {% if user.is_authenticated %}
-            <button 
-                id="save-crossword-btn"
-                class="save-btn"
-                type="button"
-                data-save-url="{% url 'crossword:save_crossword' %}"
-            >
-                SAVE PROGRESS
-            </button>
-        {% else %}
-            <button
-                class="save-btn"
-                onclick="window.location.href='{% url 'login' %}'"
-            >
-                LOGIN TO SAVE
-            </button>
-        {% endif %}
     {% endif %}  
 </div>
