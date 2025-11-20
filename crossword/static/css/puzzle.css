@@ -35,11 +35,13 @@ td {
     border-collapse: collapse;
     border-spacing: 0;
     table-layout: fixed;
+    width: auto;
 }
 
 .crossword-table td {
     position: relative;
     width: 40px;
+    height: 40px;
     aspect-ratio: 1 / 1;
     padding: 0;
     margin: 0;
@@ -50,15 +52,15 @@ td {
 /* No longer have black squares, clear illusion */
 .black-square {
     background-color: transparent;
-    width: 40px;
-    height: 40px;
+    /* width: 40px;
+    height: 40px; */
 }
 
 .white-square {
     background-color: white;
     border: 1px solid #000; 
-    width: 40px;
-    height: 40px;
+    /* width: 40px;
+    height: 40px; */
 }
 
 input.crossword-input {
@@ -78,7 +80,7 @@ input.crossword-input:focus {
     border-color: #007bff;
     outline: none;
 }
-
+/* 
 .grid {
     display: flex;
     justify-content: center;
@@ -88,7 +90,19 @@ input.crossword-input:focus {
     margin: 0px;
     overflow: visible;
     margin-bottom: 50px;
+} */
+.grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 auto;
+    margin: 0;
+    margin-bottom: 50px;
+    overflow: auto;
+    width: auto;
+    height: auto;
 }
+
 
 /* clue numbers */
 .corner-number {
