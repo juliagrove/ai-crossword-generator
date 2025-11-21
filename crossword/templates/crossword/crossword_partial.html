@@ -108,6 +108,8 @@
                                         maxlength="1"
                                         class="crossword-input"
                                         data-answer="{{ cell.letter|upper }}"
+                                        data-across-number="{% if cell.across_number %}{{ cell.across_number }}{% endif %}"
+                                        data-down-number="{% if cell.down_number %}{{ cell.down_number }}{% endif %}"
                                     />
                                 </div>
                             </td>

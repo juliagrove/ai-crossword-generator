@@ -46,7 +46,6 @@ function initCellHoverClueHighlight() {
         td.addEventListener("mouseenter", () => {
             const acrossNumber = td.dataset.acrossNumber;
             const downNumber = td.dataset.downNumber;
-
             const direction = acrossNumber ? "across" : "down";
             const clueNumber = acrossNumber || downNumber;
             if (!clueNumber) return;
@@ -120,12 +119,14 @@ function initAutoCheck() {
     if (!button || !inputs.length) return;
 
     let autoCheck = button.classList.contains("is-on");
+    let currentDirection = "across";
 
+    // ----- AUTO CHECk -----
     function styleInput(input) {
         const correct = (input.dataset.answer || "").toUpperCase();
         const val = (input.value || "").toUpperCase();
 
-        if (val === "") {
+        if (!val) {
             input.style.color = "black";
             input.style.fontWeight = "normal";
         } else if (val === correct) {
@@ -159,15 +160,93 @@ function initAutoCheck() {
             resetStyles();
         }
     }
-    // Click to toggle auto-check
+
     button.addEventListener("click", () => {
         autoCheck = !autoCheck;
         updateButtonUI();
     });
 
     updateButtonUI();
-    // handling cell inputs
+    // ----- NAVIGATION MAPS -----
+    // meta for each input
+    const metaByEl = new Map();
+    const acrossMap = new Map();
+    const downMap = new Map();
+
     inputs.forEach((input, index) => {
+        const across = input.dataset.acrossNumber || null;
+        const down = input.dataset.downNumber || null;
+        const meta = { el: input, index, across, down };
+
+        metaByEl.set(input, meta);
+
+        if (across) {
+            if (!acrossMap.has(across)) acrossMap.set(across, []);
+            acrossMap.get(across).push(meta);
+        }
+        if (down) {
+            if (!downMap.has(down)) downMap.set(down, []);
+            downMap.get(down).push(meta);
+        }
+    });
+
+    // Build next/prev lookup tables
+    const nextAcross = new Map();
+    const prevAcross = new Map();
+    acrossMap.forEach(list => {
+        list.sort((a, b) => a.index - b.index);
+        for (let i = 0; i < list.length; i++) {
+            const curr = list[i].el;
+            const prev = i > 0 ? list[i - 1].el : null;
+            const next = i < list.length - 1 ? list[i + 1].el : null;
+            if (next) nextAcross.set(curr, next);
+            if (prev) prevAcross.set(curr, prev);
+        }
+    });
+
+    const nextDown = new Map();
+    const prevDown = new Map();
+    downMap.forEach(list => {
+        list.sort((a, b) => a.index - b.index);
+        for (let i = 0; i < list.length; i++) {
+            const curr = list[i].el;
+            const prev = i > 0 ? list[i - 1].el : null;
+            const next = i < list.length - 1 ? list[i + 1].el : null;
+            if (next) nextDown.set(curr, next);
+            if (prev) prevDown.set(curr, prev);
+        }
+    });
+
+    function getNextCell(current, direction) {
+        const meta = metaByEl.get(current);
+        if (!meta) return null;
+
+        if (direction === "across") {
+            if (meta.across && nextAcross.has(current)) return nextAcross.get(current);
+            if (meta.down && nextDown.has(current)) return nextDown.get(current);
+        } else if (direction === "down") {
+            if (meta.down && nextDown.has(current)) return nextDown.get(current);
+            if (meta.across && nextAcross.has(current)) return nextAcross.get(current);
+        }
+        return null;
+    }
+
+    function getPrevCell(current, direction) {
+        const meta = metaByEl.get(current);
+        if (!meta) return null;
+
+        if (direction === "across") {
+            if (meta.across && prevAcross.has(current)) return prevAcross.get(current);
+            if (meta.down && prevDown.has(current)) return prevDown.get(current);
+        } else if (direction === "down") {
+            if (meta.down && prevDown.has(current)) return prevDown.get(current);
+            if (meta.across && prevAcross.has(current)) return prevAcross.get(current);
+        }
+        return null;
+    }
+
+    // ----- INPUT HANDLERS -----
+    inputs.forEach(input => {
         input.addEventListener("input", () => {
             let val = (input.value || "").toUpperCase();
 
@@ -183,24 +262,36 @@ function initAutoCheck() {
             }
             input.value = val;
 
-            // auto move to next input if a character was entered
-            if (val !== "" && index < inputs.length - 1) {
-                inputs[index + 1].focus();
-            }
+            const meta = metaByEl.get(input);
+            if (!meta) return;
+
+            if (meta.across && !meta.down) {
+                currentDirection = "across";
+            } else if (meta.down && !meta.across) {
+                currentDirection = "down";
+            } 
+            // if intersection cell, dont change direction
 
             if (autoCheck) {
                 styleInput(input);
             }
 
-            // confetti feature
-            // checkForCompletion();
+            // auto move if a character was entered
+            if (val !== "") {
+                const next = getNextCell(input, currentDirection);
+                if (next) next.focus();
+            }
         });
 
         input.addEventListener("keydown", (e) => {
-            if (e.key === "Backspace" && input.value === "" && index > 0) {
-                e.preventDefault();
-                inputs[index - 1].focus();
-                inputs[index - 1].value = "";
+            if (e.key === "Backspace" && input.value === "") {
+                const prev = getPrevCell(input, currentDirection);
+                if (prev) {
+                    e.preventDefault();
+                    prev.focus();
+                    prev.value = "";
+                    if (autoCheck) styleInput(prev);
+                }
             }
         });
     });
