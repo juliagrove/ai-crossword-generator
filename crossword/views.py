@@ -15,14 +15,15 @@ from .services.crossword_service import crossword_service
 def home(request):
     if request.method == "POST":
         category = request.POST.get("user_input", "")
+        size = request.POST.get("crossword-size", "small")
         error_message = None
         crossword_grid = []
         across_clues = []
         down_clues = []
-
+        
         try:
             crossword_grid, across_clues, down_clues = crossword_service.generate(
-                category, num_words=40
+                category, size=size
             )
 
         except Exception as e:

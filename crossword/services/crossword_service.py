@@ -15,13 +15,14 @@ class CrosswordService:
     def __init__(self, clue_generator):
         self._clue_generator = clue_generator
 
-    def generate(self, category: str, num_words: int):
+    def generate(self, category: str, size: str):
         """
         Public entrypoint: returns (grid, across_clues, down_clues)
         """
         if os.getenv("USE_SAMPLE_CROSSWORD_DATA", "false").lower() == "true":
             clues = self._load_sample_data()
         else:
+            num_words = self._get_num_words(size)
             clues = self._clue_generator.generate(category, num_words)
 
         crossword_filled, words_placed = self._build_grid(clues)
@@ -30,6 +31,10 @@ class CrosswordService:
         final_grid = self._simplify_grid(numbered_grid)
 
         return final_grid, across_clues, down_clues
+
+    def _get_num_words(self, size):
+        sizes = {"small": 20, "medium": 50, "large": 80, "XL": 100}
+        return sizes.get(size, 40)
 
     def _load_sample_data(self):
         """
@@ -110,6 +115,7 @@ class CrosswordService:
 
         def letter_at(r, c):
             return grid[r][c]["letter"]
+
         # intersection letter must match or be empty
         if letter_at(row, col) not in (empty, word[letter_index]):
             return False
