@@ -359,9 +359,12 @@ function getCrosswordDataFromDom() {
 
 document.addEventListener("click", async (event) => {
     const target = event.target;
-
     // Reveal grid button
     if (target && target.id === "reveal-solution-btn") {
+        if (!getCrosswordDataFromDom()) {
+            alert("Start a crossword to reveal solution")
+            return;
+        }
         if (!confirm("Are you sure you want to reveal the full solution?")) {
             return;
         }
@@ -382,7 +385,7 @@ document.addEventListener("click", async (event) => {
     if (target && target.id === "save-crossword-btn") {
         const data = getCrosswordDataFromDom();
         if (!data) {
-            alert("Crossword data not found in DOM.");
+            alert("Start a crossword to save your progress");
             return;
         }
 

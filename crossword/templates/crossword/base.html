@@ -15,10 +15,36 @@
 <body>
     <!-- nav bar -->
     <nav class="navbar">
-        <div class="nav-spacer"></div>
-    
-        <h1 class="nav-title">Play It Your Way</h1>
-    
+            <div class="nav-left">
+            <!-- Auto check button -->
+                <button
+                    id="auto-check-btn"
+                    class="auto-check-btn {% if not from_saved %}is-on{% endif %}"
+                    type="button"
+                >
+                    AUTO CHECK
+                </button>
+                <!-- Save Crossword Button -->
+                {% if user.is_authenticated %}
+                    <button 
+                        id="save-crossword-btn"
+                        class="save-btn"
+                        type="button"
+                        data-save-url="{% url 'crossword:save_crossword' %}"
+                    >
+                        SAVE PROGRESS
+                    </button>
+                {% endif %}
+                <!-- Reveal solution button -->
+                <button 
+                    id="reveal-solution-btn" 
+                    class="save-btn" 
+                    type="button"
+                >
+                    REVEAL SOLUTION
+                </button>
+            </div>
+            <h1 class="nav-title">Play It Your Way</h1>
         <div class="nav-right">
             <a href="{% url 'crossword:home' %}">Play</a>
             {% if user.is_authenticated %}

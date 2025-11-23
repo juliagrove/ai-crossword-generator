@@ -9,50 +9,11 @@
         </div>
     {% else %}
         <div class="left-side">
-            <div class="left-buttons">
-                <!-- Auto check button -->
-                <button
-                    id="auto-check-btn"
-                    class="auto-check-btn {% if not from_saved %}is-on{% endif %}"
-                    type="button"
-                >
-                    AUTO CHECK
-                </button>
-
-                {{ crossword_grid|json_script:"solution-grid-data" }}
-                {{ across_clues|json_script:"across-clues-data" }}
-                {{ down_clues|json_script:"down-clues-data" }}
-                {{ category|json_script:"category-data" }}
-                {{ progress_grid|default:"[]"|json_script:"progress-grid-data" }}
-
-                <!-- Save Crossword Button -->
-                {% if user.is_authenticated %}
-                    <button 
-                        id="save-crossword-btn"
-                        class="save-btn"
-                        type="button"
-                        data-save-url="{% url 'crossword:save_crossword' %}"
-                    >
-                        SAVE PROGRESS
-                    </button>
-                {% else %}
-                    <button
-                        class="save-btn"
-                        onclick="window.location.href='{% url 'login' %}'"
-                    >
-                        LOGIN TO SAVE
-                    </button>
-                {% endif %}
-
-                <!-- Reveal solution button -->
-                <button 
-                    id="reveal-solution-btn" 
-                    class="save-btn" 
-                    type="button"
-                >
-                    REVEAL SOLUTION
-                </button>
-            </div>
+            {{ crossword_grid|json_script:"solution-grid-data" }}
+            {{ across_clues|json_script:"across-clues-data" }}
+            {{ down_clues|json_script:"down-clues-data" }}
+            {{ category|json_script:"category-data" }}
+            {{ progress_grid|default:"[]"|json_script:"progress-grid-data" }}
             <!-- List of Clues -->
             <div class="wordList">
                 <div class="across-clues">

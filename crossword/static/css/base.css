@@ -1,3 +1,7 @@
+main {
+    margin-top: 150px;
+}
+
 body {
     color:black;
     background-color: cadetblue;
@@ -52,17 +56,31 @@ h1 {
     align-items: center;
     background: white;
     padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; 
 }
 
 /* To center title */
-.nav-spacer {
-    width: 500px; /* must match width of nav-right */
+.nav-left {
+    width: 800px; /* must match width of nav-right */
+    align-items: left;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    gap:18px;
+    /* margin-left: 100px; */
 }
 
 .nav-right {
-    align-items: right;
-    width: 500px;
+    width: 800px; /* equal to width of nav-right */
+    align-items: left;
     font-size: 20px;
+    display: flex;
+    justify-content: center;
+    gap:18px;
 }
 
 .navbar a {
@@ -73,4 +91,55 @@ h1 {
 
 .navbar .logo {
     font-weight: bold;
+}
+
+.enterCategory select {
+    border-radius: 15px;
+    padding: 10px;
+    width: 100px;
+    font-size: 15px;
+    border-color: white;
+    color: grey;
+}
+
+.auto-check-btn.is-on {
+    background-color: white;
+    color: cadetblue;
+}
+
+.auto-check-btn {
+    border-radius: 25px;
+    border: 2px solid cadetblue;
+    background-color: cadetblue;
+    color: white;
+    padding: 8px 20px;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    font-size: 15px;
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.15s ease;
+}
+
+
+.save-btn {
+    border-radius: 25px;
+    border: 2px solid cadetblue;
+    background-color: white;
+    color: cadetblue;
+    padding: 8px 20px;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    font-size: 15px;
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.15s ease;
 }
