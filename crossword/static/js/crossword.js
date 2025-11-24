@@ -25,6 +25,7 @@ function initCrosswordPage() {
             container.innerHTML = html;
             spinner.style.display = 'none';
             loadingText.style.display = 'none';
+            crosswordCompleted = false; // reset for new puzzles
             
             restoreProgressGridIfPresent();
             initAutoCheck();
@@ -37,6 +38,67 @@ function initCrosswordPage() {
             loadingText.style.display = 'none';
         });
     });
+}
+
+let crosswordCompleted = false;
+
+function showConfetti() {
+    if (!window.confetti) {
+        alert("🎉 Congrats, you completed the puzzle!");
+        return;
+    }
+    const duration = 2 * 1000; // 2 seconds
+    const animationEnd = Date.now() + duration;
+    const defaults = {
+        startVelocity: 50,
+        spread: 360,
+        ticks: 90,
+        zIndex: 1000
+    };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function () {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+        // left side
+        confetti({
+            ...defaults,
+            particleCount: 100,
+            origin: { x: randomInRange(0.1, 0.4), y: Math.random() - 0.2 }
+        });
+        // right side
+        confetti({
+            ...defaults,
+            particleCount: 100,
+            origin: { x: randomInRange(0.5, 0.9), y: Math.random() - 0.2 }
+        });
+        
+    }, 250);
+}
+
+function checkCrosswordComplete() {
+    const inputs = document.querySelectorAll(".crossword-input");
+
+    for (const input of inputs) {
+        const expected = (input.dataset.answer || "").toUpperCase().trim();
+        const value = (input.value || "").toUpperCase().trim();
+        
+        if (!expected) continue;
+        
+        if (value !== expected) {
+            return;
+        }
+    }
+    if (!crosswordCompleted) {
+        crosswordCompleted = true;
+        showConfetti();
+    }
 }
 
 function initCellHoverClueHighlight() {
@@ -281,6 +343,7 @@ function initAutoCheck() {
                 const next = getNextCell(input, currentDirection);
                 if (next) next.focus();
             }
+            checkCrosswordComplete();
         });
 
         input.addEventListener("keydown", (e) => {
