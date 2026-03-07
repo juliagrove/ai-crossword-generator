@@ -83,3 +83,28 @@ h2 {
 .saved-buttons {
     align-items: right;
 }
+
+.sort-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0 250px 20px 250px;
+    gap: 10px;
+    color: white;
+    font-size: 16px;
+}
+
+.sort-bar select {
+    background-color: white;
+    color: cadetblue;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+}
+
+.sort-bar select:hover {
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+}

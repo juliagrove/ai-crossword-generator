@@ -111,9 +111,18 @@ def save_crossword(request):
 # List the users saved crosswords/progress
 @login_required
 def saved_crosswords(request):
-    crosswords = SavedCrossword.objects.filter(user=request.user).order_by("updated_at")
+    sort = request.GET.get("sort", "newest")
+    sort_options = {
+        "newest": "-created_at",
+        "oldest": "created_at",
+        "az": "category",
+        "za": "-category",
+    }
+    order = sort_options.get(sort, "-created_at")
+    crosswords = SavedCrossword.objects.filter(user=request.user).order_by(order)
     context = {
         "crosswords": crosswords,
+        "current_sort": sort,
     }
     return render(request, "crossword/saved_crosswords.html", context)
 
