@@ -16,17 +16,19 @@
     <!-- nav bar -->
     <nav class="navbar">
             <div class="nav-left">
-            <!-- Auto check button -->
+                {% if request.resolver_match.url_name not in 'login signup' %}
+                <!-- Auto check button -->
                 <button
                     id="auto-check-btn"
                     class="auto-check-btn {% if not from_saved %}is-on{% endif %}"
                     type="button"
+                    style="display:none;"
                 >
                     AUTO CHECK
                 </button>
                 <!-- Save Crossword Button -->
                 {% if user.is_authenticated %}
-                    <button 
+                    <button
                         id="save-crossword-btn"
                         class="save-btn"
                         type="button"
@@ -36,13 +38,15 @@
                     </button>
                 {% endif %}
                 <!-- Reveal solution button -->
-                <button 
-                    id="reveal-solution-btn" 
-                    class="save-btn" 
+                <button
+                    id="reveal-solution-btn"
+                    class="save-btn"
                     type="button"
+                    style="display:none;"
                 >
                     REVEAL SOLUTION
                 </button>
+                {% endif %}
             </div>
             <h1 class="nav-title">Play It Your Way</h1>
         <div class="nav-right">

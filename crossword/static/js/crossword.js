@@ -58,12 +58,22 @@ function restoreFromLocalStorageIfPresent() {
         initClueHoverHighlight();
         initCellHoverClueHighlight();
         updatePlayLink();
+        updatePuzzleButtons();
         return true;
     } catch (e) {
         console.warn('Could not restore crossword from localStorage', e);
         localStorage.removeItem(PENDING_RESTORE_KEY);
         return false;
     }
+}
+
+function updatePuzzleButtons() {
+    const hasCrossword = !!getCrosswordDataFromDom();
+    const display = hasCrossword ? 'inline-block' : 'none';
+    const autoCheck = document.getElementById('auto-check-btn');
+    const reveal = document.getElementById('reveal-solution-btn');
+    if (autoCheck) autoCheck.style.display = display;
+    if (reveal) reveal.style.display = display;
 }
 
 function updatePlayLink() {
@@ -101,6 +111,7 @@ function submitCrosswordForm(form) {
         initClueHoverHighlight();
         initCellHoverClueHighlight();
         updatePlayLink();
+        updatePuzzleButtons();
     })
     .catch(err => {
         console.error(err);
@@ -570,10 +581,6 @@ document.addEventListener("click", async (event) => {
 
     // Reveal grid button
     if (target && target.id === "reveal-solution-btn") {
-        if (!getCrosswordDataFromDom()) {
-            showInfoModal("Start a crossword to reveal the solution.");
-            return;
-        }
         const revealModal = document.getElementById("reveal-confirm-modal");
         if (revealModal) revealModal.style.display = "flex";
         return;
@@ -797,4 +804,5 @@ document.addEventListener("DOMContentLoaded", () => {
         initCellHoverClueHighlight();
     }
     updatePlayLink();
+    updatePuzzleButtons();
 });
