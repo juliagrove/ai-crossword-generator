@@ -57,12 +57,19 @@ function restoreFromLocalStorageIfPresent() {
         initAutoCheck();
         initClueHoverHighlight();
         initCellHoverClueHighlight();
+        updatePlayLink();
         return true;
     } catch (e) {
         console.warn('Could not restore crossword from localStorage', e);
         localStorage.removeItem(PENDING_RESTORE_KEY);
         return false;
     }
+}
+
+function updatePlayLink() {
+    const link = document.getElementById('play-link');
+    if (!link) return;
+    link.textContent = getCrosswordDataFromDom() ? 'New Puzzle' : 'Play';
 }
 
 function initCrosswordPage() {
@@ -99,6 +106,7 @@ function initCrosswordPage() {
             initAutoCheck();
             initClueHoverHighlight();
             initCellHoverClueHighlight();
+            updatePlayLink();
         })
         .catch(err => {
             console.error(err);
@@ -587,18 +595,27 @@ document.addEventListener("click", async (event) => {
     const modalContinueBtn = document.getElementById("modal-continue-btn")
     const modalCloseBtn = document.getElementById("modal-close-btn");
 
-    if (!modal || !savedCrosswordsLink) return;
+    if (!modal) return;
 
     let pendingNavUrl = null;
 
-    savedCrosswordsLink.addEventListener("click", (e) => {
+    function interceptNavIfUnsaved(link, e) {
         const hasCrossword = !!getCrosswordDataFromDom();
         if (hasCrossword && !crosswordSaved) {
             e.preventDefault();
-            pendingNavUrl = savedCrosswordsLink.href;
+            pendingNavUrl = link.href;
             modal.style.display = "flex";
         }
-    });
+    }
+
+    if (savedCrosswordsLink) {
+        savedCrosswordsLink.addEventListener("click", (e) => interceptNavIfUnsaved(savedCrosswordsLink, e));
+    }
+
+    const playLink = document.getElementById("play-link");
+    if (playLink) {
+        playLink.addEventListener("click", (e) => interceptNavIfUnsaved(playLink, e));
+    }
 
     modalCloseBtn.addEventListener("click", () => {
         modal.style.display = "none";
@@ -680,4 +697,5 @@ document.addEventListener("DOMContentLoaded", () => {
         initClueHoverHighlight();
         initCellHoverClueHighlight();
     }
+    updatePlayLink();
 });
