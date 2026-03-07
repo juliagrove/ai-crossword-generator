@@ -503,13 +503,13 @@ async function saveCrosswordToServer() {
     const saveBtn = document.getElementById("save-crossword-btn");
     const saveUrl = saveBtn ? saveBtn.dataset.saveUrl : null;
     if (!saveUrl) {
-        alert("Save is only available when logged in.");
+        showInfoModal("Save is only available when logged in.");
         return false;
     }
 
     const data = getCrosswordDataFromDom();
     if (!data) {
-        alert("Start a crossword to save your progress");
+        showInfoModal("Start a crossword to save your progress.");
         return false;
     }
 
@@ -560,22 +560,11 @@ document.addEventListener("click", async (event) => {
     // Reveal grid button
     if (target && target.id === "reveal-solution-btn") {
         if (!getCrosswordDataFromDom()) {
-            alert("Start a crossword to reveal solution")
+            showInfoModal("Start a crossword to reveal the solution.");
             return;
         }
-        if (!confirm("Are you sure you want to reveal the full solution?")) {
-            return;
-        }
-        const inputs = Array.from(document.querySelectorAll(".crossword-input"));
-
-        inputs.forEach((input) => {
-            const correct = (input.dataset.answer || "").toUpperCase();
-            input.value = correct;
-
-            const evt = new Event("input", { bubbles: true });
-            input.dispatchEvent(evt);
-        });
-
+        const revealModal = document.getElementById("reveal-confirm-modal");
+        if (revealModal) revealModal.style.display = "flex";
         return;
     }
 
@@ -585,6 +574,64 @@ document.addEventListener("click", async (event) => {
         return;
     }
 });
+
+// --- Info modal ---
+
+function showInfoModal(message) {
+    const modal = document.getElementById("info-modal");
+    const msg = document.getElementById("info-modal-message");
+    if (!modal || !msg) { alert(message); return; }
+    msg.textContent = message;
+    modal.style.display = "flex";
+}
+
+(function initInfoModal() {
+    const modal = document.getElementById("info-modal");
+    if (!modal) return;
+
+    function closeModal() { modal.style.display = "none"; }
+
+    document.getElementById("info-modal-close-btn").addEventListener("click", closeModal);
+    document.getElementById("info-modal-ok-btn").addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+})();
+
+// --- Reveal confirm modal ---
+
+(function initRevealModal() {
+    const modal = document.getElementById("reveal-confirm-modal");
+    if (!modal) return;
+
+    const confirmBtn = document.getElementById("reveal-modal-confirm-btn");
+    const cancelBtn = document.getElementById("reveal-modal-cancel-btn");
+    const closeBtn = document.getElementById("reveal-modal-close-btn");
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    function revealSolution() {
+        closeModal();
+        const overlay = document.getElementById("reveal-loading-overlay");
+        if (overlay) overlay.style.display = "flex";
+
+        setTimeout(() => {
+            const inputs = Array.from(document.querySelectorAll(".crossword-input"));
+            inputs.forEach((input) => {
+                const correct = (input.dataset.answer || "").toUpperCase();
+                input.value = correct;
+                const evt = new Event("input", { bubbles: true });
+                input.dispatchEvent(evt);
+            });
+            if (overlay) overlay.style.display = "none";
+        }, 300);
+    }
+
+    confirmBtn.addEventListener("click", revealSolution);
+    cancelBtn.addEventListener("click", closeModal);
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+})();
 
 // --- Unsaved crossword modal ---
 
