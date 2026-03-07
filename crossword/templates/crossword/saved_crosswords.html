@@ -1,11 +1,17 @@
 {% extends "crossword/base.html" %}
 {% load static %}
 
-{% block content %}
-<link rel="stylesheet" href="{% static 'css/saved_list.css' %}">
+{% block title %}Saved Crosswords | AI Crossword Generator{% endblock %}
 
+{% block meta_robots %}noindex, follow{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/saved_list.css' %}">
+{% endblock %}
+
+{% block content %}
 <div class="saved-crosswords-page">
-    <h2>Saved Crosswords</h2>
+    <h1>Saved Crosswords</h1>
 
     {% if crosswords %}
         <div class="sort-bar">
@@ -26,8 +32,8 @@
                     </div>
                     <div class="saved-buttons">
                         <a class="open-link" href="{% url 'crossword:load_saved_crossword' cw.id %}">Open</a>
-                        <form method="POST" 
-                            action="{% url 'crossword:delete_saved_crossword' cw.id %}" 
+                        <form method="POST"
+                            action="{% url 'crossword:delete_saved_crossword' cw.id %}"
                             class="delete-form"
                             onsubmit="return confirm('Delete this crossword?')">
                             {% csrf_token %}
@@ -38,7 +44,7 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>You don’t have any saved crosswords.</p>
+        <p>You don't have any saved crosswords.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -1,10 +1,36 @@
 {% extends "crossword/base.html" %}
 
-{% block title %}AI Crossword Generator{% endblock %}
+{% block title %}AI Crossword Generator — Create & Play Free AI Crosswords{% endblock %}
+
+{% block meta_description %}Create and play free AI-powered crossword puzzles on any topic you choose. Enter a category like Dogs, Space, or History — your custom crossword is ready in seconds.{% endblock %}
+
+{% block og_title %}AI Crossword Generator — Create & Play Free AI Crosswords{% endblock %}
+{% block og_description %}Create and play free AI-powered crossword puzzles on any topic. Enter a category and your custom crossword is ready in seconds.{% endblock %}
+{% block twitter_title %}AI Crossword Generator — Create & Play Free AI Crosswords{% endblock %}
+{% block twitter_description %}Create and play free AI-powered crossword puzzles on any topic. Enter a category and your custom crossword is ready in seconds.{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "AI Crossword Generator",
+  "description": "Create and play free AI-powered crossword puzzles on any topic. Enter a category and your custom crossword is ready in seconds.",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Any",
+  "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'crossword:home' %}",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
 
 {% block content %}
     <div class="enterCategory">
-        <label for="user_input">AI Crossword Generator</label>
+        <h1>AI Crossword Generator</h1>
         <form id="crosswordForm" method="POST" action="{% url 'crossword:home' %}">
             {% csrf_token %}
             <select class="crossword-size" id="crossword-size" name="crossword-size">
@@ -14,13 +40,14 @@
                 <option value="large">Large</option>
                 <option value="XL">XXL</option>
             </select>
-            <input 
-                type="text" 
+            <input
+                type="text"
                 maxlength="40"
-                id="user_input" 
+                id="user_input"
                 name="user_input"
-                placeholder="Dogs, Musicians, Countries, etc." 
+                placeholder="Dogs, Musicians, Countries, etc."
                 required
+                aria-label="Enter a crossword topic or category"
             >
             <button type="submit">Enter</button>
         </form>

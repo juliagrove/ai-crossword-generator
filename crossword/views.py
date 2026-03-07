@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -154,3 +154,30 @@ def delete_saved_crossword(request, pk):
         return redirect("crossword:saved_crosswords")
 
     return redirect("crossword:saved_crosswords")
+
+
+def robots_txt(request):
+    base_url = f"{request.scheme}://{request.get_host()}"
+    content = (
+        "User-agent: *\n"
+        "Allow: /crossword/\n"
+        "Disallow: /crossword/saved/\n"
+        "Disallow: /crossword/save/\n"
+        "Disallow: /admin/\n"
+        "Disallow: /accounts/\n"
+        f"\nSitemap: {base_url}/sitemap.xml\n"
+    )
+    return HttpResponse(content, content_type="text/plain")
+
+
+def sitemap_xml(request):
+    base_url = f"{request.scheme}://{request.get_host()}"
+    content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{base_url}/crossword/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>"""
+    return HttpResponse(content, content_type="application/xml")

@@ -1,11 +1,13 @@
 {% extends "crossword/base.html" %}
 
-{% block title %}Crossword | AI Crossword Generator{% endblock %}
+{% block title %}{% if category %}{{ category }} Crossword{% else %}Crossword{% endif %} | AI Crossword Generator{% endblock %}
+
+{% block meta_description %}Play your AI-generated {% if category %}{{ category }}{% endif %} crossword puzzle. Solve the clues and complete the grid!{% endblock %}
+
+{% block meta_robots %}noindex, follow{% endblock %}
 
 {% block content %}
-    <main>
-        <div id="crossword-container">
-            {% include "crossword/crossword_partial.html" %}
-        </div>
-    </main>
+    <div id="crossword-container">
+        {% include "crossword/crossword_partial.html" %}
+    </div>
 {% endblock %}
