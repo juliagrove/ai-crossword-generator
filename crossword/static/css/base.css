@@ -143,3 +143,23 @@ h1 {
         box-shadow 0.25s ease,
         transform 0.15s ease;
 }
+
+#save-toast {
+    position: fixed;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-size: 18px;
+    z-index: 9999;
+    transition: top 0.25s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+#save-toast.save-toast--visible {
+    top: 16px;
+}

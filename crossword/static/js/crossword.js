@@ -72,8 +72,12 @@ function updatePuzzleButtons() {
     const display = hasCrossword ? 'inline-block' : 'none';
     const autoCheck = document.getElementById('auto-check-btn');
     const reveal = document.getElementById('reveal-solution-btn');
+    const saveBtn = document.getElementById('save-crossword-btn');
     if (autoCheck) autoCheck.style.display = display;
     if (reveal) reveal.style.display = display;
+    if (saveBtn) saveBtn.style.display = display;
+    const loginLink = document.getElementById('login-link');
+    if (loginLink) loginLink.textContent = hasCrossword ? 'Login to Save Progress!' : 'Login / Sign up';
 }
 
 function updatePlayLink() {
@@ -530,10 +534,7 @@ async function saveCrosswordToServer() {
     }
 
     const data = getCrosswordDataFromDom();
-    if (!data) {
-        showInfoModal("Start a crossword to save your progress.");
-        return false;
-    }
+    if (!data) return false;
 
     const progressGrid = buildProgressGrid();
     const csrftoken = getCookie("csrftoken");
@@ -561,7 +562,7 @@ async function saveCrosswordToServer() {
         if (json.success) {
             crosswordSaved = true;
             currentSavedCrosswordId = json.id;
-            alert("Crossword Successfully Saved!");
+            showToast("Crossword successfully saved!");
             return true;
         } else {
             alert("Failed to save crossword: " + (json.error || "Unknown error"));
@@ -594,6 +595,14 @@ document.addEventListener("click", async (event) => {
 });
 
 // --- Info modal ---
+
+function showToast(message) {
+    const toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('save-toast--visible');
+    setTimeout(() => toast.classList.remove('save-toast--visible'), 2000);
+}
 
 function showInfoModal(message) {
     const modal = document.getElementById("info-modal");

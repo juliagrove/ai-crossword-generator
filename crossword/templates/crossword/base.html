@@ -32,6 +32,7 @@
                         id="save-crossword-btn"
                         class="save-btn"
                         type="button"
+                        style="display:none;"
                         data-save-url="{% url 'crossword:save_crossword' %}"
                     >
                         SAVE PROGRESS
@@ -55,7 +56,7 @@
                 <a href="{% url 'logout' %}">Logout</a>
                 <a href="{% url 'crossword:saved_crosswords' %}" id="saved-crosswords-link">Saved Crosswords</a>
             {% else %}
-                <a href="{% url 'login' %}" onclick="savePuzzleStateToLocalStorage()">Login to Save Progress!</a>
+                <a href="{% url 'login' %}" id="login-link" onclick="savePuzzleStateToLocalStorage()">Login / Sign up</a>
             {% endif %}
         
         </div>
@@ -114,6 +115,8 @@
         </div>
     </div>
     {% endif %}
+
+    <div id="save-toast"></div>
 
     {% block extra_scripts %}
 
