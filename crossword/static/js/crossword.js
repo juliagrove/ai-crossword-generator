@@ -1,4 +1,69 @@
 // crossword/static/js/crossword.js
+const PENDING_RESTORE_KEY = 'crossword_pending_restore';
+
+function savePuzzleStateToLocalStorage() {
+    const container = document.getElementById('crossword-container');
+    if (!container || !container.querySelector('.crossword-table')) return;
+
+    try {
+        localStorage.setItem(PENDING_RESTORE_KEY, JSON.stringify({
+            html: container.innerHTML,
+            progressGrid: buildProgressGrid(),
+        }));
+    } catch (e) {
+        console.warn('Could not save crossword to localStorage', e);
+    }
+}
+
+function applyProgressGrid(progressGrid) {
+    const rows = Array.from(document.querySelectorAll(".crossword-table tr"));
+    rows.forEach((rowEl, r) => {
+        const cells = Array.from(rowEl.querySelectorAll("td"));
+        cells.forEach((td, c) => {
+            const input = td.querySelector("input.crossword-input");
+            if (!input) return;
+            if (r < progressGrid.length && Array.isArray(progressGrid[r]) && c < progressGrid[r].length) {
+                const val = progressGrid[r][c];
+                if (val && typeof val === "string") {
+                    input.value = val.toUpperCase();
+                }
+            }
+        });
+    });
+}
+
+// Returns true if state was restored, so callers can skip redundant inits.
+function restoreFromLocalStorageIfPresent() {
+    const raw = localStorage.getItem(PENDING_RESTORE_KEY);
+    if (!raw) return false;
+
+    try {
+        const { html, progressGrid } = JSON.parse(raw);
+
+        const container = document.getElementById('crossword-container');
+        if (!container) return false;
+
+        localStorage.removeItem(PENDING_RESTORE_KEY);
+
+        container.innerHTML = html;
+
+        if (Array.isArray(progressGrid) && progressGrid.length > 0) {
+            applyProgressGrid(progressGrid);
+        }
+
+        crosswordCompleted = false;
+        crosswordSaved = false;
+        initAutoCheck();
+        initClueHoverHighlight();
+        initCellHoverClueHighlight();
+        return true;
+    } catch (e) {
+        console.warn('Could not restore crossword from localStorage', e);
+        localStorage.removeItem(PENDING_RESTORE_KEY);
+        return false;
+    }
+}
+
 function initCrosswordPage() {
     const form = document.getElementById('crosswordForm');
     if (!form) return;
@@ -25,7 +90,8 @@ function initCrosswordPage() {
             container.innerHTML = html;
             spinner.style.display = 'none';
             loadingText.style.display = 'none';
-            crosswordCompleted = false; // reset for new puzzles
+            crosswordCompleted = false;
+            crosswordSaved = false;
             
             restoreProgressGridIfPresent();
             initAutoCheck();
@@ -418,10 +484,66 @@ function getCrosswordDataFromDom() {
     };
 }
 
-// --- Event delegation for Save button ---
+// --- Save logic ---
+
+let crosswordSaved = false;
+
+async function saveCrosswordToServer() {
+    const saveBtn = document.getElementById("save-crossword-btn");
+    const saveUrl = saveBtn ? saveBtn.dataset.saveUrl : null;
+    if (!saveUrl) {
+        alert("Save is only available when logged in.");
+        return false;
+    }
+
+    const data = getCrosswordDataFromDom();
+    if (!data) {
+        alert("Start a crossword to save your progress");
+        return false;
+    }
+
+    const progressGrid = buildProgressGrid();
+    const csrftoken = getCookie("csrftoken");
+
+    try {
+        const response = await fetch(saveUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify({
+                category: data.category,
+                solution_grid: data.solutionGrid,
+                progress_grid: progressGrid,
+                across_clues: data.acrossClues,
+                down_clues: data.downClues,
+            }),
+        });
+
+        const json = await response.json();
+
+        if (json.success) {
+            crosswordSaved = true;
+            alert("Crossword Successfully Saved!");
+            return true;
+        } else {
+            alert("Failed to save crossword: " + (json.error || "Unknown error"));
+            return false;
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Network error while saving crossword.");
+        return false;
+    }
+}
+
+// --- Event delegation for Save / Reveal buttons ---
 
 document.addEventListener("click", async (event) => {
     const target = event.target;
+
     // Reveal grid button
     if (target && target.id === "reveal-solution-btn") {
         if (!getCrosswordDataFromDom()) {
@@ -444,48 +566,63 @@ document.addEventListener("click", async (event) => {
         return;
     }
 
-    // save crossword button
+    // Save crossword button (navbar)
     if (target && target.id === "save-crossword-btn") {
-        const data = getCrosswordDataFromDom();
-        if (!data) {
-            alert("Start a crossword to save your progress");
-            return;
-        }
-
-        const progressGrid = buildProgressGrid();
-        const csrftoken = getCookie("csrftoken");
-        const saveUrl = target.dataset.saveUrl;
-
-        try {
-            const response = await fetch(saveUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                body: JSON.stringify({
-                    category: data.category,
-                    solution_grid: data.solutionGrid,
-                    progress_grid: progressGrid,
-                    across_clues: data.acrossClues,
-                    down_clues: data.downClues,
-                }),
-            });
-
-            const json = await response.json();
-
-            if (json.success) {
-                alert("Crossword Successfully Saved!");
-            } else {
-                alert("Failed to save crossword: " + (json.error || "Unknown error"));
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Network error while saving crossword.");
-        }
+        await saveCrosswordToServer();
+        return;
     }
 });
+
+// --- Unsaved crossword modal ---
+
+(function initUnsavedModal() {
+    const modal = document.getElementById("unsaved-crossword-modal");
+    const savedCrosswordsLink = document.getElementById("saved-crosswords-link");
+    const modalSaveBtn = document.getElementById("modal-save-btn");
+    const modalContinueBtn = document.getElementById("modal-continue-btn")
+    const modalCloseBtn = document.getElementById("modal-close-btn");
+
+    if (!modal || !savedCrosswordsLink) return;
+
+    let pendingNavUrl = null;
+
+    savedCrosswordsLink.addEventListener("click", (e) => {
+        const hasCrossword = !!getCrosswordDataFromDom();
+        if (hasCrossword && !crosswordSaved) {
+            e.preventDefault();
+            pendingNavUrl = savedCrosswordsLink.href;
+            modal.style.display = "flex";
+        }
+    });
+
+    modalCloseBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+        pendingNavUrl = null;
+    });
+
+    modalSaveBtn.addEventListener("click", async () => {
+        await saveCrosswordToServer();
+        modal.style.display = "none";
+        if (pendingNavUrl) {
+            window.location.href = pendingNavUrl;
+        }
+    });
+
+    modalContinueBtn.addEventListener("click", async () => {
+        modal.style.display = "none";
+        if (pendingNavUrl) {
+            window.location.href = pendingNavUrl;
+        }
+    });
+
+    // Close on backdrop click
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.style.display = "none";
+            pendingNavUrl = null;
+        }
+    });
+})();
 
 function restoreProgressGridIfPresent() {
     const progressEl = document.getElementById("progress-grid-data");
@@ -526,8 +663,11 @@ function restoreProgressGridIfPresent() {
 
 document.addEventListener("DOMContentLoaded", () => {
     initCrosswordPage();
-    restoreProgressGridIfPresent();
-    initAutoCheck();
-    initClueHoverHighlight();
-    initCellHoverClueHighlight();
+    const restored = restoreFromLocalStorageIfPresent();
+    if (!restored) {
+        restoreProgressGridIfPresent();
+        initAutoCheck();
+        initClueHoverHighlight();
+        initCellHoverClueHighlight();
+    }
 });

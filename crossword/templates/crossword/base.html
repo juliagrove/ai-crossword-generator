@@ -49,9 +49,9 @@
             <a href="{% url 'crossword:home' %}">Play</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'logout' %}">Logout</a>
-                <a href="{% url 'crossword:saved_crosswords' %}">Saved Crosswords</a>
+                <a href="{% url 'crossword:saved_crosswords' %}" id="saved-crosswords-link">Saved Crosswords</a>
             {% else %}
-                <a href="{% url 'login' %}">Login to Save Progress!</a>
+                <a href="{% url 'login' %}" onclick="savePuzzleStateToLocalStorage()">Login to Save Progress!</a>
             {% endif %}
         
         </div>
@@ -62,8 +62,21 @@
         {% endblock %}
     </main>
 
+    {% if user.is_authenticated %}
+    <div id="unsaved-crossword-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:2000; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:12px; padding:30px 36px; max-width:400px; width:90%; text-align:center; font-size:16px; color:#333; font-family:Arial,Helvetica,sans-serif;">
+            <p style="margin:0 0 24px;">Your current crossword has not been saved. Would you like to save your progress before you continue?</p>
+            <div style="display:flex; gap:16px; justify-content:center;">
+                <button id="modal-save-btn" class="save-btn">Save Crossword</button>
+                <button id="modal-continue-btn" class="save-btn">Continue Without Saving</button>
+                <button id="modal-close-btn" class="save-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     {% block extra_scripts %}
-    
+
     {% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="{% static 'js/crossword.js' %}"></script>
