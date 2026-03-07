@@ -1,5 +1,5 @@
 # 🧩 **AI Crossword Generator**
-# **Deployed at:**  https://ai-crossword-generator.onrender.com  *(server may take a moment to wake up)*
+# **Deployed at:**  https://ai-crossword-generator.onrender.com
 ![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
 ![Django](https://img.shields.io/badge/Django-5.0-darkgreen?logo=django&logoColor=white)
 ![Gemini AI](https://img.shields.io/badge/Gemini%20API-Google%20AI-orange?logo=google&logoColor=white)
