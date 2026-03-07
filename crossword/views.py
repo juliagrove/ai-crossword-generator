@@ -85,14 +85,20 @@ def save_crossword(request):
                 status=400,
             )
 
-        saved = SavedCrossword.objects.create(
-            user=request.user,
-            category=category,
-            solution_grid=solution_grid,
-            progress_grid=progress_grid,
-            across_clues=across_clues,
-            down_clues=down_clues,
-        )
+        saved_crossword_id = data.get("saved_crossword_id")
+        if saved_crossword_id:
+            saved = get_object_or_404(SavedCrossword, pk=saved_crossword_id, user=request.user)
+            saved.progress_grid = progress_grid
+            saved.save()
+        else:
+            saved = SavedCrossword.objects.create(
+                user=request.user,
+                category=category,
+                solution_grid=solution_grid,
+                progress_grid=progress_grid,
+                across_clues=across_clues,
+                down_clues=down_clues,
+            )
 
         return JsonResponse({"success": True, "id": saved.id})
 
@@ -123,6 +129,7 @@ def load_saved_crossword(request, pk):
         "progress_grid": saved.progress_grid,
         "error_message": None,
         "from_saved": True,
+        "saved_id": saved.pk,
     }
     return render(request, "crossword/crossword.html", context)
 

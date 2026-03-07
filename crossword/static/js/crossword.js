@@ -53,6 +53,7 @@ function restoreFromLocalStorageIfPresent() {
 
         crosswordCompleted = false;
         crosswordSaved = false;
+        currentSavedCrosswordId = null;
         initAutoCheck();
         initClueHoverHighlight();
         initCellHoverClueHighlight();
@@ -92,7 +93,8 @@ function initCrosswordPage() {
             loadingText.style.display = 'none';
             crosswordCompleted = false;
             crosswordSaved = false;
-            
+            currentSavedCrosswordId = null;
+
             restoreProgressGridIfPresent();
             initAutoCheck();
             initClueHoverHighlight();
@@ -487,6 +489,7 @@ function getCrosswordDataFromDom() {
 // --- Save logic ---
 
 let crosswordSaved = false;
+let currentSavedCrosswordId = null;
 
 async function saveCrosswordToServer() {
     const saveBtn = document.getElementById("save-crossword-btn");
@@ -519,6 +522,7 @@ async function saveCrosswordToServer() {
                 progress_grid: progressGrid,
                 across_clues: data.acrossClues,
                 down_clues: data.downClues,
+                saved_crossword_id: currentSavedCrosswordId,
             }),
         });
 
@@ -526,6 +530,7 @@ async function saveCrosswordToServer() {
 
         if (json.success) {
             crosswordSaved = true;
+            currentSavedCrosswordId = json.id;
             alert("Crossword Successfully Saved!");
             return true;
         } else {
@@ -662,6 +667,11 @@ function restoreProgressGridIfPresent() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    const savedIdEl = document.getElementById("saved-crossword-id");
+    if (savedIdEl) {
+        try { currentSavedCrosswordId = JSON.parse(savedIdEl.textContent); } catch {}
+    }
+
     initCrosswordPage();
     const restored = restoreFromLocalStorageIfPresent();
     if (!restored) {
