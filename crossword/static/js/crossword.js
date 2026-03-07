@@ -53,9 +53,12 @@ function restoreFromLocalStorageIfPresent() {
 
         crosswordCompleted = false;
         crosswordSaved = false;
+        currentSavedCrosswordId = null;
         initAutoCheck();
         initClueHoverHighlight();
         initCellHoverClueHighlight();
+        updatePlayLink();
+        updatePuzzleButtons();
         return true;
     } catch (e) {
         console.warn('Could not restore crossword from localStorage', e);
@@ -64,45 +67,78 @@ function restoreFromLocalStorageIfPresent() {
     }
 }
 
+function updatePuzzleButtons() {
+    const hasCrossword = !!getCrosswordDataFromDom();
+    const display = hasCrossword ? 'inline-block' : 'none';
+    const autoCheck = document.getElementById('auto-check-btn');
+    const reveal = document.getElementById('reveal-solution-btn');
+    const saveBtn = document.getElementById('save-crossword-btn');
+    if (autoCheck) autoCheck.style.display = display;
+    if (reveal) reveal.style.display = display;
+    if (saveBtn) saveBtn.style.display = display;
+    const loginLink = document.getElementById('login-link');
+    if (loginLink) loginLink.textContent = hasCrossword ? 'Login to Save Progress!' : 'Login / Sign up';
+}
+
+function updatePlayLink() {
+    const link = document.getElementById('play-link');
+    if (!link) return;
+    link.textContent = getCrosswordDataFromDom() ? 'New Puzzle' : 'Play';
+}
+
+function submitCrosswordForm(form) {
+    const formData = new FormData(form);
+    const spinner = document.getElementById('loading-spinner');
+    const loadingText = document.getElementById('loading-text');
+    const container = document.getElementById('crossword-container');
+
+    spinner.style.display = 'block';
+    loadingText.style.display = 'block';
+    container.innerHTML = '';
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.text())
+    .then(html => {
+        container.innerHTML = html;
+        spinner.style.display = 'none';
+        loadingText.style.display = 'none';
+        crosswordCompleted = false;
+        crosswordSaved = false;
+        currentSavedCrosswordId = null;
+
+        restoreProgressGridIfPresent();
+        initAutoCheck();
+        initClueHoverHighlight();
+        initCellHoverClueHighlight();
+        updatePlayLink();
+        updatePuzzleButtons();
+    })
+    .catch(err => {
+        console.error(err);
+        spinner.style.display = 'none';
+        loadingText.style.display = 'none';
+    });
+}
+
 function initCrosswordPage() {
     const form = document.getElementById('crosswordForm');
     if (!form) return;
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
-        const formData = new FormData(form);
-        const spinner = document.getElementById('loading-spinner');
-        const loadingText = document.getElementById('loading-text');
-        const container = document.getElementById('crossword-container');
-
-        spinner.style.display = 'block';
-        loadingText.style.display = 'block';
-        container.innerHTML = '';
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(response => response.text())
-        .then(html => {
-            container.innerHTML = html;
-            spinner.style.display = 'none';
-            loadingText.style.display = 'none';
-            crosswordCompleted = false;
-            crosswordSaved = false;
-            
-            restoreProgressGridIfPresent();
-            initAutoCheck();
-            initClueHoverHighlight();
-            initCellHoverClueHighlight();
-        })
-        .catch(err => {
-            console.error(err);
-            spinner.style.display = 'none';
-            loadingText.style.display = 'none';
-        });
+        const hasCrossword = !!getCrosswordDataFromDom();
+        const isAuthenticated = !!document.getElementById("unsaved-crossword-modal");
+        if (hasCrossword && isAuthenticated && !crosswordSaved) {
+            showUnsavedModal(() => submitCrosswordForm(form));
+        } else if (hasCrossword && !isAuthenticated) {
+            showProgressLostModal(() => submitCrosswordForm(form));
+        } else {
+            submitCrosswordForm(form);
+        }
     });
 }
 
@@ -487,20 +523,18 @@ function getCrosswordDataFromDom() {
 // --- Save logic ---
 
 let crosswordSaved = false;
+let currentSavedCrosswordId = null;
 
 async function saveCrosswordToServer() {
     const saveBtn = document.getElementById("save-crossword-btn");
     const saveUrl = saveBtn ? saveBtn.dataset.saveUrl : null;
     if (!saveUrl) {
-        alert("Save is only available when logged in.");
+        showInfoModal("Save is only available when logged in.");
         return false;
     }
 
     const data = getCrosswordDataFromDom();
-    if (!data) {
-        alert("Start a crossword to save your progress");
-        return false;
-    }
+    if (!data) return false;
 
     const progressGrid = buildProgressGrid();
     const csrftoken = getCookie("csrftoken");
@@ -519,6 +553,7 @@ async function saveCrosswordToServer() {
                 progress_grid: progressGrid,
                 across_clues: data.acrossClues,
                 down_clues: data.downClues,
+                saved_crossword_id: currentSavedCrosswordId,
             }),
         });
 
@@ -526,7 +561,8 @@ async function saveCrosswordToServer() {
 
         if (json.success) {
             crosswordSaved = true;
-            alert("Crossword Successfully Saved!");
+            currentSavedCrosswordId = json.id;
+            showToast("Crossword successfully saved!");
             return true;
         } else {
             alert("Failed to save crossword: " + (json.error || "Unknown error"));
@@ -546,23 +582,8 @@ document.addEventListener("click", async (event) => {
 
     // Reveal grid button
     if (target && target.id === "reveal-solution-btn") {
-        if (!getCrosswordDataFromDom()) {
-            alert("Start a crossword to reveal solution")
-            return;
-        }
-        if (!confirm("Are you sure you want to reveal the full solution?")) {
-            return;
-        }
-        const inputs = Array.from(document.querySelectorAll(".crossword-input"));
-
-        inputs.forEach((input) => {
-            const correct = (input.dataset.answer || "").toUpperCase();
-            input.value = correct;
-
-            const evt = new Event("input", { bubbles: true });
-            input.dispatchEvent(evt);
-        });
-
+        const revealModal = document.getElementById("reveal-confirm-modal");
+        if (revealModal) revealModal.style.display = "flex";
         return;
     }
 
@@ -573,55 +594,171 @@ document.addEventListener("click", async (event) => {
     }
 });
 
+// --- Info modal ---
+
+function showToast(message) {
+    const toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('save-toast--visible');
+    setTimeout(() => toast.classList.remove('save-toast--visible'), 2000);
+}
+
+function showInfoModal(message) {
+    const modal = document.getElementById("info-modal");
+    const msg = document.getElementById("info-modal-message");
+    if (!modal || !msg) { alert(message); return; }
+    msg.textContent = message;
+    modal.style.display = "flex";
+}
+
+(function initInfoModal() {
+    const modal = document.getElementById("info-modal");
+    if (!modal) return;
+
+    function closeModal() { modal.style.display = "none"; }
+
+    document.getElementById("info-modal-close-btn").addEventListener("click", closeModal);
+    document.getElementById("info-modal-ok-btn").addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+})();
+
+// --- Reveal confirm modal ---
+
+(function initRevealModal() {
+    const modal = document.getElementById("reveal-confirm-modal");
+    if (!modal) return;
+
+    const confirmBtn = document.getElementById("reveal-modal-confirm-btn");
+    const cancelBtn = document.getElementById("reveal-modal-cancel-btn");
+    const closeBtn = document.getElementById("reveal-modal-close-btn");
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    function revealSolution() {
+        closeModal();
+        const overlay = document.getElementById("reveal-loading-overlay");
+        if (overlay) overlay.style.display = "flex";
+
+        setTimeout(() => {
+            const inputs = Array.from(document.querySelectorAll(".crossword-input"));
+            inputs.forEach((input) => {
+                const correct = (input.dataset.answer || "").toUpperCase();
+                input.value = correct;
+                const evt = new Event("input", { bubbles: true });
+                input.dispatchEvent(evt);
+            });
+            if (overlay) overlay.style.display = "none";
+        }, 300);
+    }
+
+    confirmBtn.addEventListener("click", revealSolution);
+    cancelBtn.addEventListener("click", closeModal);
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+})();
+
+// --- Progress lost modal (unauthenticated users) ---
+
+let showProgressLostModal = () => {};
+
+(function initProgressLostModal() {
+    const modal = document.getElementById("progress-lost-modal");
+    if (!modal) return;
+
+    let pendingAction = null;
+
+    showProgressLostModal = function(onContinue) {
+        pendingAction = onContinue;
+        modal.style.display = "flex";
+    };
+
+    function closeModal() {
+        modal.style.display = "none";
+        pendingAction = null;
+    }
+
+    document.getElementById("progress-lost-confirm-btn").addEventListener("click", () => {
+        const action = pendingAction;
+        closeModal();
+        if (action) action();
+    });
+
+    document.getElementById("progress-lost-cancel-btn").addEventListener("click", closeModal);
+    document.getElementById("progress-lost-close-btn").addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+    const playLink = document.getElementById("play-link");
+    if (playLink) {
+        playLink.addEventListener("click", (e) => {
+            if (getCrosswordDataFromDom()) {
+                e.preventDefault();
+                showProgressLostModal(() => { window.location.href = playLink.href; });
+            }
+        });
+    }
+})();
+
 // --- Unsaved crossword modal ---
+
+let showUnsavedModal = () => {};
 
 (function initUnsavedModal() {
     const modal = document.getElementById("unsaved-crossword-modal");
-    const savedCrosswordsLink = document.getElementById("saved-crosswords-link");
     const modalSaveBtn = document.getElementById("modal-save-btn");
-    const modalContinueBtn = document.getElementById("modal-continue-btn")
+    const modalContinueBtn = document.getElementById("modal-continue-btn");
     const modalCloseBtn = document.getElementById("modal-close-btn");
 
-    if (!modal || !savedCrosswordsLink) return;
+    if (!modal) return;
 
-    let pendingNavUrl = null;
+    let pendingAction = null;
 
-    savedCrosswordsLink.addEventListener("click", (e) => {
-        const hasCrossword = !!getCrosswordDataFromDom();
-        if (hasCrossword && !crosswordSaved) {
-            e.preventDefault();
-            pendingNavUrl = savedCrosswordsLink.href;
-            modal.style.display = "flex";
-        }
-    });
+    showUnsavedModal = function(onContinue) {
+        pendingAction = onContinue;
+        modal.style.display = "flex";
+    };
 
-    modalCloseBtn.addEventListener("click", () => {
+    function closeModal() {
         modal.style.display = "none";
-        pendingNavUrl = null;
-    });
+        pendingAction = null;
+    }
+
+    function interceptNavIfUnsaved(link, e) {
+        if (getCrosswordDataFromDom() && !crosswordSaved) {
+            e.preventDefault();
+            showUnsavedModal(() => { window.location.href = link.href; });
+        }
+    }
+
+    const savedCrosswordsLink = document.getElementById("saved-crosswords-link");
+    if (savedCrosswordsLink) {
+        savedCrosswordsLink.addEventListener("click", (e) => interceptNavIfUnsaved(savedCrosswordsLink, e));
+    }
+
+    const playLink = document.getElementById("play-link");
+    if (playLink) {
+        playLink.addEventListener("click", (e) => interceptNavIfUnsaved(playLink, e));
+    }
+
+
+    modalCloseBtn.addEventListener("click", closeModal);
 
     modalSaveBtn.addEventListener("click", async () => {
         await saveCrosswordToServer();
-        modal.style.display = "none";
-        if (pendingNavUrl) {
-            window.location.href = pendingNavUrl;
-        }
+        const action = pendingAction;
+        closeModal();
+        if (action) action();
     });
 
-    modalContinueBtn.addEventListener("click", async () => {
-        modal.style.display = "none";
-        if (pendingNavUrl) {
-            window.location.href = pendingNavUrl;
-        }
+    modalContinueBtn.addEventListener("click", () => {
+        const action = pendingAction;
+        closeModal();
+        if (action) action();
     });
 
-    // Close on backdrop click
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-            modal.style.display = "none";
-            pendingNavUrl = null;
-        }
-    });
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
 })();
 
 function restoreProgressGridIfPresent() {
@@ -662,6 +799,11 @@ function restoreProgressGridIfPresent() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    const savedIdEl = document.getElementById("saved-crossword-id");
+    if (savedIdEl) {
+        try { currentSavedCrosswordId = JSON.parse(savedIdEl.textContent); } catch {}
+    }
+
     initCrosswordPage();
     const restored = restoreFromLocalStorageIfPresent();
     if (!restored) {
@@ -670,4 +812,6 @@ document.addEventListener("DOMContentLoaded", () => {
         initClueHoverHighlight();
         initCellHoverClueHighlight();
     }
+    updatePlayLink();
+    updatePuzzleButtons();
 });

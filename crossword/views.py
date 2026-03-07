@@ -1,6 +1,7 @@
 # crossword/views.py
 import json
 
+from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -54,7 +55,8 @@ def signup(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()  # creates new user
+            form.save()
+            messages.success(request, "Account created successfully! Please log in.")
             return redirect("login")
     else:
         form = UserCreationForm()
@@ -85,14 +87,20 @@ def save_crossword(request):
                 status=400,
             )
 
-        saved = SavedCrossword.objects.create(
-            user=request.user,
-            category=category,
-            solution_grid=solution_grid,
-            progress_grid=progress_grid,
-            across_clues=across_clues,
-            down_clues=down_clues,
-        )
+        saved_crossword_id = data.get("saved_crossword_id")
+        if saved_crossword_id:
+            saved = get_object_or_404(SavedCrossword, pk=saved_crossword_id, user=request.user)
+            saved.progress_grid = progress_grid
+            saved.save()
+        else:
+            saved = SavedCrossword.objects.create(
+                user=request.user,
+                category=category,
+                solution_grid=solution_grid,
+                progress_grid=progress_grid,
+                across_clues=across_clues,
+                down_clues=down_clues,
+            )
 
         return JsonResponse({"success": True, "id": saved.id})
 
@@ -103,9 +111,18 @@ def save_crossword(request):
 # List the users saved crosswords/progress
 @login_required
 def saved_crosswords(request):
-    crosswords = SavedCrossword.objects.filter(user=request.user).order_by("updated_at")
+    sort = request.GET.get("sort", "newest")
+    sort_options = {
+        "newest": "-created_at",
+        "oldest": "created_at",
+        "az": "category",
+        "za": "-category",
+    }
+    order = sort_options.get(sort, "-created_at")
+    crosswords = SavedCrossword.objects.filter(user=request.user).order_by(order)
     context = {
         "crosswords": crosswords,
+        "current_sort": sort,
     }
     return render(request, "crossword/saved_crosswords.html", context)
 
@@ -123,6 +140,7 @@ def load_saved_crossword(request, pk):
         "progress_grid": saved.progress_grid,
         "error_message": None,
         "from_saved": True,
+        "saved_id": saved.pk,
     }
     return render(request, "crossword/crossword.html", context)
 

@@ -14,6 +14,7 @@
             {{ down_clues|json_script:"down-clues-data" }}
             {{ category|json_script:"category-data" }}
             {{ progress_grid|default:"[]"|json_script:"progress-grid-data" }}
+            {% if saved_id %}{{ saved_id|json_script:"saved-crossword-id" }}{% endif %}
             <!-- List of Clues -->
             <div class="wordList">
                 <div class="across-clues">

@@ -4,18 +4,20 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 
-<div class="login-container">
-    <h2>Create Account</h2>
+<div class="auth-wrapper">
+    <div class="login-container">
+        <h2>Create Account</h2>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+            <button type="submit">Sign Up</button>
+        </form>
 
-        <button type="submit">Sign Up</button>
-    </form>
-
-    <p style="margin-top: 10px;">
-        Already have an account? <a href="{% url 'login' %}">Log in</a>
-    </p>
+        <p class="auth-footer">
+            Already have an account? <a href="{% url 'login' %}">Log in</a>
+        </p>
+    </div>
 </div>
 {% endblock %}

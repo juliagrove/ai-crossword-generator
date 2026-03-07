@@ -8,6 +8,15 @@
     <h2>Saved Crosswords</h2>
 
     {% if crosswords %}
+        <div class="sort-bar">
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select" onchange="window.location.href='?sort=' + this.value">
+                <option value="newest" {% if current_sort == "newest" %}selected{% endif %}>Newest first</option>
+                <option value="oldest" {% if current_sort == "oldest" %}selected{% endif %}>Oldest first</option>
+                <option value="az" {% if current_sort == "az" %}selected{% endif %}>Category A–Z</option>
+                <option value="za" {% if current_sort == "za" %}selected{% endif %}>Category Z–A</option>
+            </select>
+        </div>
         <ul class="saved-crossword-list">
             {% for cw in crosswords %}
                 <li>
