@@ -14,7 +14,6 @@ import os
 from pathlib import Path
 
 import dj_database_url
-import google.generativeai as genai
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -122,11 +121,10 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL_NAME = "gemini-2.5-flash"
+LLM_API_KEY = os.getenv("LLM_API_KEY")
 
-# Configure Gemini once at startup
-genai.configure(api_key=GEMINI_API_KEY)
+LLM_PROVIDER = os.getenv("LLM_PROVIDER",)
+LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "gemini-2.5-flash")
 
 LOGIN_REDIRECT_URL = "crossword:home"
 LOGOUT_REDIRECT_URL = "crossword:home"
