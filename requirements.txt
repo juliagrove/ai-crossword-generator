@@ -11,3 +11,4 @@ psycopg2-binary
 # LangChain
 langchain
 langchain-core
+langchain-google-genai
